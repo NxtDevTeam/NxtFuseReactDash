@@ -1,7 +1,7 @@
 const AUTH_CONFIG = {
-	// domain     : "YOUR_DOMAIN",
-	// clientId   : "YOUR_CLIENT_ID",
-	// callbackUrl: "YOUR_DOMAIN/callback"
+	domain: process.env.REACT_APP_AUTH0_DOMAIN,
+	clientId: process.env.REACT_APP_AUTH0_CLIENT_ID,
+	callbackUrl: `${window.location.origin}/callback`
 };
 
 export default AUTH_CONFIG;
