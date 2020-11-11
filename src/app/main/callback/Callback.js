@@ -1,26 +1,44 @@
 import FuseSplashScreen from '@fuse/core/FuseSplashScreen';
 import auth0Service from 'app/services/auth0Service';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { setUserDataAuth0 } from 'app/auth/store/userSlice';
 import { showMessage } from 'app/store/fuse/messageSlice';
+import { setUserDataAuth0 } from 'app/auth/store/userSlice';
 
 function Callback(props) {
 	const dispatch = useDispatch();
 
+	// Only run this once upon startup
 	useEffect(() => {
-		auth0Service.onAuthenticated(() => {
-			dispatch(showMessage({ message: 'Logging in with Auth0' }));
-
-			/**
-			 * Retrieve user data from Auth0
-			 */
-			auth0Service.getUserData().then(tokenData => {
-				dispatch(setUserDataAuth0(tokenData));
-				dispatch(showMessage({ message: 'Logged in with Auth0' }));
-			});
-		});
+		dispatch(showMessage({ message: 'Logging in with Auth0' }));
 	}, [dispatch]);
+
+	// Store the user data in local state before sending it into redux to avoid
+	// calling the effect with handleRedirectCallback() multiple times when the
+	// dispatch() function changes. Because the effect that calls
+	// handleRedirectCallback() is asynchronous, it might run into issues if the
+	// dispatch() function changes while performing the authentication.
+	const [user, setUser] = useState(null);
+
+	useEffect(() => {
+		(async () => {
+			// Only try if not already signed in
+			if (!await auth0Service.isAuthenticated()) {
+				await auth0Service.handleRedirectCallback();
+			}
+
+			const userData = await auth0Service.getUserData();
+			setUser(userData);
+		})();
+	}, [setUser]);
+
+	// Keep the user data up to date in Redux
+	useEffect(() => {
+		if (user) {
+			dispatch(setUserDataAuth0(user));
+			dispatch(showMessage({ message: 'Logged in with Auth0' }));
+		}
+	}, [user, dispatch]);
 
 	return <FuseSplashScreen />;
 }

@@ -7,12 +7,10 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Popover from '@material-ui/core/Popover';
 import Typography from '@material-ui/core/Typography';
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { logoutUser } from 'app/auth/store/userSlice';
 
 function UserMenu(props) {
-	const dispatch = useDispatch();
 	const user = useSelector(({ auth }) => auth.user);
 
 	const [userMenu, setUserMenu] = useState(null);
@@ -25,6 +23,8 @@ function UserMenu(props) {
 		setUserMenu(null);
 	};
 
+	const roleDisplay = user.role.length > 0 ? user.role.toString() : 'Guest';
+
 	return (
 		<>
 			<Button className="min-h-40 min-w-40 px-0 md:px-16 py-0 md:py-6" onClick={userMenuClick}>
@@ -33,8 +33,7 @@ function UserMenu(props) {
 						{user.data.displayName}
 					</Typography>
 					<Typography className="text-11 capitalize" color="textSecondary">
-						{user.role.toString()}
-						{(!user.role || (Array.isArray(user.role) && user.role.length === 0)) && 'Guest'}
+						{roleDisplay}
 					</Typography>
 				</div>
 
@@ -61,19 +60,13 @@ function UserMenu(props) {
 					paper: 'py-8'
 				}}
 			>
-				{!user.role || user.role.length === 0 ? (
+				{!user.from ? (
 					<>
 						<MenuItem component={Link} to="/login" role="button">
 							<ListItemIcon className="min-w-40">
 								<Icon>lock</Icon>
 							</ListItemIcon>
-							<ListItemText primary="Login" />
-						</MenuItem>
-						<MenuItem component={Link} to="/register" role="button">
-							<ListItemIcon className="min-w-40">
-								<Icon>person_add</Icon>
-							</ListItemIcon>
-							<ListItemText primary="Register" />
+							<ListItemText primary="Login/Register" />
 						</MenuItem>
 					</>
 				) : (
@@ -90,12 +83,7 @@ function UserMenu(props) {
 							</ListItemIcon>
 							<ListItemText primary="Inbox" />
 						</MenuItem>
-						<MenuItem
-							onClick={() => {
-								dispatch(logoutUser());
-								userMenuClose();
-							}}
-						>
+						<MenuItem component={Link} to="/logout" onClick={userMenuClose} role="button">
 							<ListItemIcon className="min-w-40">
 								<Icon>exit_to_app</Icon>
 							</ListItemIcon>
