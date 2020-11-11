@@ -8,18 +8,25 @@ import auth0Service from 'app/services/auth0Service';
 import firebaseService from 'app/services/firebaseService';
 import jwtService from 'app/services/jwtService';
 
-export const setUserDataAuth0 = tokenData => async dispatch => {
+export const setUserDataAuth0 = data => async dispatch => {
+	let roles = auth0Service.extractRoles(data);
+	if (roles.length === 0) {
+		roles = ['Member'];
+	}
+
+	const user_metadata = auth0Service.extractUserMetadata(data);
+	const app_metadata = auth0Service.extractAppMetadata(data);
 	const user = {
-		role: ['admin'],
+		role: roles,
 		from: 'auth0',
 		data: {
-			displayName: tokenData.username || tokenData.name,
-			photoURL: tokenData.picture,
-			email: tokenData.email,
-			settings:
-				tokenData.user_metadata && tokenData.user_metadata.settings ? tokenData.user_metadata.settings : {},
-			shortcuts:
-				tokenData.user_metadata && tokenData.user_metadata.shortcuts ? tokenData.user_metadata.shortcuts : []
+			displayName: data.username || data.name,
+			photoURL: data.picture,
+			email: data.email,
+			settings: user_metadata.settings ? user_metadata.settings : {},
+			shortcuts: user_metadata.shortcuts ? user_metadata.shortcuts : [],
+			organizationId: app_metadata.organization_id,
+			teamId: app_metadata.team_id,
 		}
 	};
 
@@ -69,17 +76,12 @@ export const createUserSettingsFirebase = authUser => async (dispatch, getState)
 };
 
 export const setUserData = user => async (dispatch, getState) => {
-	/*
-        You can redirect the logged-in user to a specific route depending on his role
-         */
+	// You can redirect the logged-in user to a specific route depending on his role
 
 	history.location.state = {
-		redirectUrl: user.redirectUrl // for example 'apps/academy'
+		redirectUrl: user.redirectUrl
 	};
 
-	/*
-    Set User Settings
-     */
 	dispatch(setDefaultSettings(user.data.settings));
 
 	dispatch(setUser(user));
@@ -116,10 +118,6 @@ export const logoutUser = () => async (dispatch, getState) => {
 		// is guest
 		return null;
 	}
-
-	history.push({
-		pathname: '/'
-	});
 
 	switch (user.from) {
 		case 'firebase': {
@@ -188,10 +186,8 @@ export const updateUserData = user => async (dispatch, getState) => {
 const initialState = {
 	role: [], // guest
 	data: {
-		displayName: 'John Doe',
-		photoURL: 'assets/images/avatars/Velazquez.jpg',
-		email: 'johndoe@withinpixels.com',
-		shortcuts: ['calendar', 'mail', 'contacts', 'todo']
+		displayName: "",
+		shortcuts: [],
 	}
 };
 

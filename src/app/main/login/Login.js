@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { darken } from '@material-ui/core/styles/colorManipulator';
 import Typography from '@material-ui/core/Typography';
 import clsx from 'clsx';
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import Auth0LoginTab from './tabs/Auth0LoginTab';
 
@@ -70,12 +70,6 @@ function Login() {
 						</CardContent>
 
 						<div className="flex flex-col items-center justify-center pb-32">
-							<div>
-								<span className="font-medium mr-8">Don't have an account?</span>
-								<Link className="font-medium" to="/register">
-									Register
-								</Link>
-							</div>
 							<Link className="font-medium mt-8" to="/">
 								Back to Dashboard
 							</Link>
