@@ -69,6 +69,21 @@ class Auth0Service {
 			{ id: idToken.sub_jwk }, userMetadata);
 	};
 
+	async getApiToken(options) {
+		const auth0 = await this.getClient();
+		return await auth0.getTokenSilently(options);
+	}
+
+	async getManagementToken() {
+		return await this.getApiToken();
+	}
+
+	async getNxtBackendToken() {
+		return await this.getApiToken({
+			audience: AUTH_CONFIG.nxtApiAudience,
+		});
+	}
+
 	extractUserMetadata(tokenData) {
 		return tokenData[AUTH_CONFIG.idTokenNamespace + 'user_metadata'] || {};
 	}

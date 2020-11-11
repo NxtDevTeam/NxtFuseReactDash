@@ -3,6 +3,7 @@ const AUTH_CONFIG = {
 	clientId: process.env.REACT_APP_AUTH0_CLIENT_ID,
 	callbackUrl: `${window.location.origin}/callback`,
 
+	nxtApiAudience: process.env.REACT_APP_AUTH0_NXT_API_AUDIENCE,
 	idTokenNamespace: process.env.REACT_APP_AUTH0_ID_TOKEN_NAMESPACE,
 };
 
