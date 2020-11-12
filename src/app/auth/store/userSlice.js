@@ -4,6 +4,7 @@ import history from '@history';
 import _ from '@lodash';
 import { setInitialSettings, setDefaultSettings } from 'app/store/fuse/settingsSlice';
 import { showMessage } from 'app/store/fuse/messageSlice';
+import { fetchOwnOrganization } from 'app/store/organization/organizationsSlice';
 import auth0Service from 'app/services/auth0Service';
 import firebaseService from 'app/services/firebaseService';
 import jwtService from 'app/services/jwtService';
@@ -85,6 +86,8 @@ export const setUserData = user => async (dispatch, getState) => {
 	dispatch(setDefaultSettings(user.data.settings));
 
 	dispatch(setUser(user));
+
+	dispatch(fetchOwnOrganization());
 };
 
 export const updateUserSettings = settings => async (dispatch, getState) => {
