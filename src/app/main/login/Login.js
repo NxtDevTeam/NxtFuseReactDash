@@ -59,19 +59,7 @@ function Login() {
 						<CardContent className="flex flex-col items-center justify-center w-full py-96 max-w-320">
 							<FuseAnimate delay={300}>
 								<div className="flex items-center mb-32">
-									<img className="logo-icon w-48" src="assets/images/logos/fuse.svg" alt="logo" />
-									<div className="border-l-1 mr-4 w-1 h-40" />
-									<div>
-										<Typography className="text-24 font-800 logo-text" color="inherit">
-											FUSE
-										</Typography>
-										<Typography
-											className="text-16 tracking-widest -mt-8 font-700"
-											color="textSecondary"
-										>
-											REACT
-										</Typography>
-									</div>
+									<img className="logo-icon" src="assets/images/logos/nxtsuite.png" alt="logo" />
 								</div>
 							</FuseAnimate>
 
@@ -130,8 +118,8 @@ function Login() {
 						<div className="max-w-320">
 							<FuseAnimate animation="transition.slideUpIn" delay={400}>
 								<Typography variant="h3" color="inherit" className="font-800 leading-tight">
-									Welcome <br />
-									to the <br /> FUSE React!
+									Welcome to <br />
+									NXTSuite
 								</Typography>
 							</FuseAnimate>
 
