@@ -71,10 +71,12 @@ class Auth0Service {
 
 	async getApiToken(options) {
 		const auth0 = await this.getClient();
-		// This has to be with a popup when running on localhost, but can be
-		// switched to getTokenSilently() if running on https.
-		// TODO Make this configurable / automatic (based on NODE_ENV?)
-		return await auth0.getTokenWithPopup(options);
+		// Try getting the token silently, then fallback to a popup if it fails
+		try {
+			return await auth0.getTokenSilently(options);
+		} catch {
+			return await auth0.getTokenWithPopup(options);
+		}
 	}
 
 	async getManagementToken() {
