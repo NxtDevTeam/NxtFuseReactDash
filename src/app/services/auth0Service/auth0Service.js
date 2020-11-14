@@ -60,13 +60,25 @@ class Auth0Service {
 
 	async updateUserData(userMetadata) {
 		const idToken = await this.getUserData();
+		const accessToken = await this.getManagementToken();
 		const managementClient = new Management({
 			domain: AUTH_CONFIG.domain,
-			token: idToken,
+			token: accessToken,
 		});
 
-		await managementClient.updateUserMetadata(
-			{ id: idToken.sub_jwk }, userMetadata);
+		// Wrap in a promise to work with async/await
+		await new Promise((resolve, reject) => {
+			managementClient.patchUserMetadata(
+				idToken.sub,
+				userMetadata,
+				(err, user) => {
+					if (err) {
+						reject(err);
+					} else {
+						resolve(user);
+					}
+				});
+		});
 	};
 
 	async getApiToken(options) {
@@ -80,7 +92,10 @@ class Auth0Service {
 	}
 
 	async getManagementToken() {
-		return await this.getApiToken();
+		return await this.getApiToken({
+			audience: `https://${AUTH_CONFIG.domain}/api/v2/`,
+			scope: 'update:current_user_metadata',
+		});
 	}
 
 	async getNxtBackendToken() {
