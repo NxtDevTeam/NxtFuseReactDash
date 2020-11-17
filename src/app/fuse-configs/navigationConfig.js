@@ -39,6 +39,12 @@ const navigationConfig = [
 						url: '/apps/dashboards/custom',
 					},
 					{
+						id: 'builder',
+						title: 'Builder',
+						type: 'item',
+						url: '/apps/dashboards/builder',
+					},
+					{
 						id: 'analytics-dashboard',
 						title: 'Analytics',
 						type: 'item',

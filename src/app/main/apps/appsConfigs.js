@@ -12,9 +12,11 @@ import ScrumboardAppConfig from './scrumboard/ScrumboardAppConfig';
 import TodoAppConfig from './todo/TodoAppConfig';
 import OrganizationProfileAppConfig from './organization-profile/OrganizationProfileAppConfig';
 import CustomDashboardAppConfig from './dashboards/custom/CustomDashboardAppConfig';
+import DashboardBuilderAppConfig from './dashboards/builder/DashboardBuilderAppConfig';
 
 const appsConfigs = [
 	CustomDashboardAppConfig,
+	DashboardBuilderAppConfig,
 	OrganizationProfileAppConfig,
 	AnalyticsDashboardAppConfig,
 	ProjectDashboardAppConfig,
