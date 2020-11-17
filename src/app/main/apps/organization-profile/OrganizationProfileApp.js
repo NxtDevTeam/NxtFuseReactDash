@@ -9,6 +9,7 @@ import {
 	fetchOwnOrganization,
 	selectOwnOrganization,
 	selectOrganization,
+	selectLoadingOwnOrgId,
 } from 'app/store/organization/organizationsSlice';
 import {
 	fetchMemberList,
@@ -41,7 +42,7 @@ function OrganizationProfileApp(props) {
 	);
 
 	// orgId may be 'own', this is the actual ID
-	const actualOrgId = organization.data && organization.data.id;
+	const actualOrgId = organization?.data?.id;
 
 	// TODO Fetch at the same time as fetching the main organization data
 	// This requires some extra work resolving the own organization ID (which
@@ -56,14 +57,18 @@ function OrganizationProfileApp(props) {
 
 	const members = useSelector((state) => selectOrgMembers(state, actualOrgId));
 
+	const loadingOrgId = useSelector(selectLoadingOwnOrgId);
+
+	const loadingOrganization = organization?.loading;
+
 	// TODO Redirect if requesting ones own organization but user does not belong
 	// to an organization
 
-	if (!organization || organization.loading) {
+	if (loadingOrgId || loadingOrganization) {
 		// If the organization object does not exist in the store, it hasn't been
 		// requested yet, so it is still loading
 		return <FuseLoading />;
-	} else if (organization.data) {
+	} else if (organization?.data) {
 		return (
 			<FusePageSimple
 				classes={{
