@@ -33,6 +33,12 @@ const navigationConfig = [
 				icon: 'dashboard',
 				children: [
 					{
+						id: 'custom',
+						title: 'Custom',
+						type: 'item',
+						url: '/apps/dashboards/custom',
+					},
+					{
 						id: 'analytics-dashboard',
 						title: 'Analytics',
 						type: 'item',

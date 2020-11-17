@@ -11,8 +11,10 @@ import NotesAppConfig from './notes/NotesAppConfig';
 import ScrumboardAppConfig from './scrumboard/ScrumboardAppConfig';
 import TodoAppConfig from './todo/TodoAppConfig';
 import OrganizationProfileAppConfig from './organization-profile/OrganizationProfileAppConfig';
+import CustomDashboardAppConfig from './dashboards/custom/CustomDashboardAppConfig';
 
 const appsConfigs = [
+	CustomDashboardAppConfig,
 	OrganizationProfileAppConfig,
 	AnalyticsDashboardAppConfig,
 	ProjectDashboardAppConfig,
