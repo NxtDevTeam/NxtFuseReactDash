@@ -47,7 +47,7 @@ export const fetchOwnOrganization = createAsyncThunk(
 			dispatch(fetchOrganization(orgId));
 			return orgId;
 		} else {
-			return null;
+			throw new Error('User does not belong to an organization');
 		}
 	}
 );
@@ -94,6 +94,8 @@ export const {
 
 export const selectLoadingAll = createSliceSelector('loadingAll');
 
+export const selectLoadingOwnOrgId = createSliceSelector('loadingOwnOrgId');
+
 export const selectErrorLoadingAll = createSliceSelector('error');
 
 export const selectOwnOrgId = createSliceSelector('ownOrgId');
@@ -124,6 +126,7 @@ const organizationSlice = createSlice({
 	name: 'organizations',
 	initialState: organizationAdapter.getInitialState({
 		loadingAll: false,
+		loadingOwnOrgId: false,
 		ownOrgId: null,
 		error: null,
 	}),
@@ -166,8 +169,16 @@ const organizationSlice = createSlice({
 		},
 		[updateOrganization.rejected]: errorReducer,
 
+		[fetchOwnOrganization.pending]: (state, action) => {
+			state.loadingOwnOrgId = true;
+		},
 		[fetchOwnOrganization.fulfilled]: (state, action) => {
+			state.loadingOwnOrgId = false;
 			state.ownOrgId = action.payload;
+		},
+		[fetchOwnOrganization.rejected]: (state, action) => {
+			state.loadingOwnOrgId = false;
+			state.error = action.error;
 		},
 	}
 });
