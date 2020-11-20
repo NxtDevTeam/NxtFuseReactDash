@@ -204,6 +204,27 @@ export default class NxtBackendApi {
 			url: `/organizations/${orgId}/data-sources/${sourceId}`,
 		});
 	}
+
+	getChatContacts() {
+		return this.makeRequest({ url: '/chat/contacts' });
+	}
+
+	getChatMessages(chatId, query = {}) {
+		return this.makeRequest({
+			url: `/chat/chats/${chatId}/messages`,
+			params: query,
+		});
+	}
+
+	sendChatMessage(chatId, message) {
+		return this.makeRequest({
+			method: 'post',
+			url: `/chat/chats/${chatId}/messages`,
+			data: {
+				message,
+			},
+		});
+	}
 }
 
 /**

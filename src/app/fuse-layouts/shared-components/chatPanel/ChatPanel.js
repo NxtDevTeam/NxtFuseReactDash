@@ -17,7 +17,7 @@ import reducer from './store';
 import { getContacts, selectContacts } from './store/contactsSlice';
 import { openChatPanel, closeChatPanel } from './store/stateSlice';
 
-import { getUserData } from './store/userSlice';
+import { fetchChatList } from './store/chatListSlice';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -81,7 +81,7 @@ function ChatPanel(props) {
 	);
 
 	useEffect(() => {
-		dispatch(getUserData());
+		dispatch(fetchChatList());
 		dispatch(getContacts());
 		return () => {
 			document.removeEventListener('keydown', handleDocumentKeyDown);
@@ -136,7 +136,7 @@ function ChatPanel(props) {
 						)}
 						{state && selectedContact && (
 							<div className="flex flex-1 items-center px-12">
-								<Avatar src={selectedContact.avatar} />
+								<Avatar src={selectedContact.picture} />
 								<Typography className="mx-16 text-16" color="inherit">
 									{selectedContact.name}
 								</Typography>
