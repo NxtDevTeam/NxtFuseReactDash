@@ -15,9 +15,13 @@ import {
 	fetchMemberList,
 	selectOrgMembers,
 } from 'app/store/organization/membersSlice';
+import {
+	fetchTeamList,
+	selectOrgTeams,
+} from 'app/store/organization/teamsSlice';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 function OrganizationProfileApp(props) {
 	const dispatch = useDispatch();
@@ -52,10 +56,36 @@ function OrganizationProfileApp(props) {
 	useEffect(() => {
 		if (actualOrgId) {
 			dispatch(fetchMemberList(actualOrgId));
+			dispatch(fetchTeamList(actualOrgId));
 		}
 	}, [dispatch, actualOrgId]);
 
 	const members = useSelector((state) => selectOrgMembers(state, actualOrgId));
+	const teams = useSelector((state) => selectOrgTeams(state, actualOrgId));
+
+	// Build the entries to display in the table (join of members and teams)
+	const memberListData = useMemo(() => {
+		if (!members || members.loading || !teams || teams.loading) {
+			return null;
+		}
+
+		// key-based view instead of a list of teams
+		let teamsMap = {}
+		for (let team of teams.data) {
+			teamsMap[team.id] = team;
+		}
+
+		return members.data.map((member) => ({
+			id: member.id,
+			name: member.name,
+			email: member.email,
+			picture: member.picture,
+			teamId: member.team_id,
+			teamName: member.team_id ? teamsMap[member.team_id]?.name : undefined,
+		}));
+	}, [members, teams]);
+
+	const userTeam = useSelector(({ auth }) => auth.user.data?.teamId);
 
 	const loadingOrgId = useSelector(selectLoadingOwnOrgId);
 
@@ -79,10 +109,11 @@ function OrganizationProfileApp(props) {
 					wrapper: 'min-h-0'
 				}}
 				header={<OrganizationHeader organization={organization.data} />}
-				content={(members && members.data)
-					? <MemberList data={members.data} />
+				content={(memberListData)
+					? <MemberList data={memberListData} filterTeamId={userTeam} />
 					: <FuseLoading />
 				}
+				innerScroll
 			/>
 		);
 	} else {
