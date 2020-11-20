@@ -22,8 +22,9 @@ export const setUserDataAuth0 = data => async dispatch => {
 		from: 'auth0',
 		data: {
 			id: data.sub,
-			displayName: data.username || data.name,
-			photoURL: data.picture,
+			name: data.name,
+			displayName: data.name || data.username,
+			picture: data.picture,
 			email: data.email,
 			settings: user_metadata.settings ? user_metadata.settings : {},
 			shortcuts: user_metadata.shortcuts ? user_metadata.shortcuts : [],

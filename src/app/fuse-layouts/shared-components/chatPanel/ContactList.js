@@ -82,14 +82,14 @@ function ContactList(props) {
 	const dispatch = useDispatch();
 	const contacts = useSelector(selectContacts);
 	const selectedContactId = useSelector(({ chatPanel }) => chatPanel.contacts.selectedContactId);
-	const user = useSelector(({ chatPanel }) => chatPanel.user);
+	const chatList = useSelector(({ chatPanel }) => chatPanel.chatList);
 
 	const classes = useStyles();
 	const contactListScroll = useRef(null);
 
 	const handleContactClick = contactId => {
 		dispatch(openChatPanel());
-		dispatch(getChat({ contactId }));
+		dispatch(getChat(contactId));
 		scrollToTop();
 	};
 
@@ -106,8 +106,8 @@ function ContactList(props) {
 				>
 					{contact.unread && <div className={classes.unreadBadge}>{contact.unread}</div>}
 					<div className={clsx(contact.status, classes.status)} />
-					<Avatar src={contact.avatar} alt={contact.name}>
-						{!contact.avatar || contact.avatar === '' ? contact.name[0] : ''}
+					<Avatar src={contact.picture} alt={contact.name}>
+						{!contact.picture || contact.picture === '' ? contact.name[0] : ''}
 					</Avatar>
 				</Button>
 			</Tooltip>
@@ -119,28 +119,30 @@ function ContactList(props) {
 			className={clsx(classes.root, 'flex flex-shrink-0 flex-col overflow-y-auto py-8')}
 			ref={contactListScroll}
 		>
-			{contacts.length > 0 && (
-				<>
-					<FuseAnimateGroup
-						enter={{
-							animation: 'transition.expandIn'
-						}}
-						className="flex flex-col flex-shrink-0"
-					>
-						{user &&
-							user.chatList &&
-							user.chatList.map(chat => {
-								const contact = contacts.find(_contact => _contact.id === chat.contactId);
-								return <ContactButton key={contact.id} contact={contact} />;
-							})}
-						<Divider className="mx-24 my-8" />
-						{contacts.map(contact => {
-							const chatContact = user.chatList.find(_chat => _chat.contactId === contact.id);
-							return !chatContact ? <ContactButton key={contact.id} contact={contact} /> : '';
-						})}
-					</FuseAnimateGroup>
-				</>
-			)}
+			{contacts.length > 0
+				? (
+						<>
+							<FuseAnimateGroup
+								enter={{
+									animation: 'transition.expandIn'
+								}}
+								className="flex flex-col flex-shrink-0"
+							>
+								{chatList &&
+									chatList.map(chat => {
+										const contact = contacts.find(_contact => _contact.id === chat.id);
+										return contact ? <ContactButton key={contact.id} contact={contact} /> : null;
+									})}
+								<Divider className="mx-24 my-8" />
+								{contacts.map(contact => {
+									const chatContact = chatList?.find(_chat => _chat.id === contact.id);
+									return !chatContact ? <ContactButton key={contact.id} contact={contact} /> : null;
+								})}
+							</FuseAnimateGroup>
+						</>
+					)
+				: null
+			}
 		</FuseScrollbars>
 	);
 }

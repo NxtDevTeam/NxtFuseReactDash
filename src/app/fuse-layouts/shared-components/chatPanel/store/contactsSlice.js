@@ -1,13 +1,14 @@
 import { createEntityAdapter, createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-import axios from 'axios';
+import auth0Service from 'app/services/auth0Service';
+import NxtBackendApi from 'app/nxt-api';
 import { closeChatPanel } from './stateSlice';
 
 export const getContacts = createAsyncThunk('chatPanel/contacts/getContacts', async params => {
-	const response = await axios.get('/api/chat/contacts', { params });
-	const data = await response.data;
+	const token = await auth0Service.getNxtBackendToken();
 
-	return data;
+	const api = new NxtBackendApi(token);
+	return await api.getChatContacts();
 });
 
 const contactsAdapter = createEntityAdapter({});

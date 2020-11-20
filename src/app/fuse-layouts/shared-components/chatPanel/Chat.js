@@ -10,8 +10,10 @@ import clsx from 'clsx';
 import moment from 'moment/moment';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { sendMessage } from './store/chatSlice';
-import { selectContacts } from './store/contactsSlice';
+import { selectUsers } from 'app/store/usersSlice';
+import { getNewMessages, sendMessage, selectMessages } from './store/chatSlice';
+
+const MESSAGE_POLL_INTERVAL = 1000;
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -141,10 +143,13 @@ const useStyles = makeStyles(theme => ({
 
 function Chat(props) {
 	const dispatch = useDispatch();
-	const contacts = useSelector(selectContacts);
 	const selectedContactId = useSelector(({ chatPanel }) => chatPanel.contacts.selectedContactId);
-	const chat = useSelector(({ chatPanel }) => chatPanel.chat);
-	const user = useSelector(({ chatPanel }) => chatPanel.user);
+	const chatId = useSelector(({ chatPanel }) => chatPanel.chat.chatId);
+	const messages = useSelector(selectMessages);
+	// All users loaded for pulling sender names and pictures
+	const allUsers = useSelector(selectUsers);
+	// Current user
+	const user = useSelector(({ auth }) => auth.user.data);
 
 	const classes = useStyles();
 	const chatScroll = useRef(null);
@@ -152,7 +157,18 @@ function Chat(props) {
 
 	useEffect(() => {
 		scrollToBottom();
-	}, [chat]);
+	}, [chatId]);
+
+	// Poll for new messages
+	useEffect(() => {
+		if (chatId) {
+			const interval = setInterval(() => {
+				dispatch(getNewMessages());
+			}, MESSAGE_POLL_INTERVAL);
+
+			return () => clearInterval(interval);
+		}
+	}, [chatId, dispatch]);
 
 	function scrollToBottom() {
 		chatScroll.current.scrollTop = chatScroll.current.scrollHeight;
@@ -170,13 +186,13 @@ function Chat(props) {
 		dispatch(
 			sendMessage({
 				messageText,
-				chatId: chat.id,
+				chatId,
 				contactId: selectedContactId
 			})
 		).then(() => {
 			setMessageText('');
 		});
-		// dispatch(sendMessage({ messageText, chatId: chat.id, contactId: user.id })).then(() => {
+		// dispatch(sendMessage({ messageText, chatId: chat.chatId, contactId: user.id })).then(() => {
 		// 	setMessageText('');
 		// });
 	};
@@ -185,22 +201,29 @@ function Chat(props) {
 		<Paper elevation={3} className={clsx(classes.root, 'flex flex-col relative pb-64', props.className)}>
 			{useMemo(() => {
 				const shouldShowContactAvatar = (item, i) => {
+					const nextMessage = messages[i + 1];
 					return (
-						item.who === selectedContactId &&
-						((chat.dialog[i + 1] && chat.dialog[i + 1].who !== selectedContactId) || !chat.dialog[i + 1])
+						item.sender_id !== user.id &&
+						(!nextMessage || nextMessage.sender_id === user.id)
 					);
 				};
 
 				const isFirstMessageOfGroup = (item, i) => {
-					return i === 0 || (chat.dialog[i - 1] && chat.dialog[i - 1].who !== item.who);
+					const prevMessage = messages[i - 1];
+					return i === 0 || prevMessage.sender_id !== item.sender_id;
 				};
 
 				const isLastMessageOfGroup = (item, i) => {
-					return i === chat.dialog.length - 1 || (chat.dialog[i + 1] && chat.dialog[i + 1].who !== item.who);
+					const nextMessage = messages[i + 1];
+					return (
+						i === messages.length - 1 ||
+						nextMessage.sender_id !== item.sender_id
+					);
 				};
+
 				return (
 					<FuseScrollbars ref={chatScroll} className="flex flex-1 flex-col overflow-y-auto">
-						{!chat ? (
+						{!chatId ? (
 							<div className="flex flex-col flex-1 items-center justify-center p-24">
 								<Icon className="text-128" color="disabled">
 									chat
@@ -209,26 +232,26 @@ function Chat(props) {
 									Select a contact to start a conversation.
 								</Typography>
 							</div>
-						) : chat.dialog.length > 0 ? (
+						) : messages.length > 0 ? (
 							<div className="flex flex-col pt-16 ltr:pl-40 rtl:pr-40 pb-40">
-								{chat.dialog.map((item, i) => {
+								{messages.map((item, i) => {
 									const contact =
-										item.who === user.id
+										item.sender_id === user.id
 											? user
-											: contacts.find(_contact => _contact.id === item.who);
+											: allUsers.find(u => u.data?.id === item.sender_id)?.data;
 									return (
 										<div
 											key={item.time}
 											className={clsx(
 												classes.messageRow,
-												{ me: item.who === user.id },
-												{ contact: item.who !== user.id },
+												{ me: item.sender_id === user.id },
+												{ contact: item.sender_id !== user.id },
 												{ 'first-of-group': isFirstMessageOfGroup(item, i) },
 												{ 'last-of-group': isLastMessageOfGroup(item, i) }
 											)}
 										>
 											{shouldShowContactAvatar(item, i) && (
-												<Avatar className={classes.avatar} src={contact.avatar} />
+												<Avatar className={classes.avatar} src={contact?.picture} />
 											)}
 											<div className={classes.bubble}>
 												<div className={classes.message}>{item.message}</div>
@@ -254,8 +277,8 @@ function Chat(props) {
 						)}
 					</FuseScrollbars>
 				);
-			}, [chat, classes, contacts, selectedContactId, user])}
-			{chat && (
+			}, [chatId, messages, classes, user, allUsers])}
+			{chatId && (
 				<form
 					onSubmit={onMessageSubmit}
 					className={clsx(classes.bottom, 'pb-16 px-8 absolute bottom-0 left-0 right-0')}
