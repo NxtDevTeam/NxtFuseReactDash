@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Checkbox from '@material-ui/core/Checkbox';
 import Table from '@material-ui/core/Table';
 import PropTypes from 'prop-types';
@@ -9,7 +9,14 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
-import { useGlobalFilter, usePagination, useRowSelect, useSortBy, useTable } from 'react-table';
+import {
+	useFilters,
+	useGlobalFilter,
+	usePagination,
+	useRowSelect,
+	useSortBy,
+	useTable,
+} from 'react-table';
 import clsx from 'clsx';
 import ContactsTablePaginationActions from './ContactsTablePaginationActions';
 
@@ -28,7 +35,15 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref)
 	);
 });
 
-const EnhancedTable = ({ columns, data, onRowClick }) => {
+const EnhancedTable = ({
+	columns,
+	data,
+	onRowClick,
+	initialState = {},
+	filterTypes,
+	globalFilter,
+	globalFilterValue,
+}) => {
 	const {
 		getTableProps,
 		headerGroups,
@@ -36,13 +51,18 @@ const EnhancedTable = ({ columns, data, onRowClick }) => {
 		page,
 		gotoPage,
 		setPageSize,
-		state: { pageIndex, pageSize }
+		state: { pageIndex, pageSize },
+		setGlobalFilter,
 	} = useTable(
 		{
 			columns,
 			data,
-			autoResetPage: true
+			initialState,
+			autoResetPage: true,
+			filterTypes,
+			globalFilter,
 		},
+		useFilters,
 		useGlobalFilter,
 		useSortBy,
 		usePagination,
@@ -79,6 +99,11 @@ const EnhancedTable = ({ columns, data, onRowClick }) => {
 			]);
 		}
 	);
+
+	// Keep filter state in sync with the table
+	useEffect(() => {
+		setGlobalFilter(globalFilterValue);
+	}, [setGlobalFilter, globalFilterValue]);
 
 	const handleChangePage = (event, newPage) => {
 		gotoPage(newPage);
@@ -166,6 +191,7 @@ const EnhancedTable = ({ columns, data, onRowClick }) => {
 EnhancedTable.propTypes = {
 	columns: PropTypes.array.isRequired,
 	data: PropTypes.array.isRequired,
+	initialState: PropTypes.object,
 	onRowClick: PropTypes.func
 };
 
