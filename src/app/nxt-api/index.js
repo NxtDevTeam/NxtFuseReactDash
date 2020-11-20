@@ -119,6 +119,43 @@ export default class NxtBackendApi {
 			url: `/organizations/${orgId}/admins/${userId}`,
 		});
 	}
+
+	getAllTeams(orgId) {
+		return this.makeRequest({ url: `/organizations/${orgId}/teams` });
+	}
+
+	getTeam(orgId, teamId) {
+		return this.makeRequest({ url: `/organizations/${orgId}/teams/${teamId}` });
+	}
+
+	updateTeam(orgId, teamId, data) {
+		return this.makeRequest({
+			method: 'put',
+			url: `/organizations/${orgId}/teams/${teamId}`,
+			data,
+		});
+	}
+
+	createTeam(orgId, data) {
+		return this.makeRequest({
+			method: 'post',
+			url: `/organizations/${orgId}/teams`,
+			data,
+		});
+	}
+
+	deleteTeam(orgId, teamId) {
+		return this.makeRequest({
+			method: 'delete',
+			url: `/organizations/${orgId}/teams/${teamId}`,
+		});
+	}
+
+	getTeamMembers(orgId, teamId) {
+		return this.makeRequest({
+			url: `/organizations/${orgId}/teams/${teamId}/members`,
+		});
+	}
 }
 
 /**
