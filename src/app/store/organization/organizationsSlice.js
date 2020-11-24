@@ -2,8 +2,9 @@ import {
 	createSlice,
 	createAsyncThunk,
 	createEntityAdapter,
-	createSelector,
 } from '@reduxjs/toolkit';
+
+import { selectOwnOrgId } from 'app/auth/store/userSlice';
 import auth0Service from 'app/services/auth0Service';
 import NxtBackendApi from 'app/nxt-api';
 
@@ -39,13 +40,10 @@ export const updateOrganization = createAsyncThunk(
 
 export const fetchOwnOrganization = createAsyncThunk(
 	'organization/fetchOwn',
-	async (_, { dispatch }) => {
-		const userData = await auth0Service.getUserData();
-		const orgId = auth0Service.extractAppMetadata(userData).organization_id;
-
+	async (_, { getState, dispatch }) => {
+		const orgId = selectOwnOrgId(getState());
 		if (orgId) {
 			dispatch(fetchOrganization(orgId));
-			return orgId;
 		} else {
 			throw new Error('User does not belong to an organization');
 		}
@@ -54,10 +52,8 @@ export const fetchOwnOrganization = createAsyncThunk(
 
 export const updateOwnOrganization = createAsyncThunk(
 	'organization/updateOwn',
-	async (organization, { dispatch }) => {
-		const userData = await auth0Service.getUserData();
-		const orgId = auth0Service.extractAppMetadata(userData).organization_id;
-
+	async (organization, { getState, dispatch }) => {
+		const orgId = selectOwnOrgId(getState());
 		if (orgId) {
 			dispatch(updateOrganization(orgId, organization));
 		} else {
@@ -80,12 +76,10 @@ export const updateOwnOrganization = createAsyncThunk(
  */
 const organizationAdapter = createEntityAdapter();
 
-const selectOrganizationsSlice = state => state.organization.organizations;
+const selectOrganizationsSlice = (state) => state.organization.organizations;
 
-const createSliceSelector = prop => createSelector(
-	selectOrganizationsSlice,
-	slice => slice[prop],
-);
+const createSliceSelector =
+	(prop) => (state) => selectOrganizationsSlice(state)[prop];
 
 export const {
 	selectAll: selectOrganizations,
@@ -94,11 +88,7 @@ export const {
 
 export const selectLoadingAll = createSliceSelector('loadingAll');
 
-export const selectLoadingOwnOrgId = createSliceSelector('loadingOwnOrgId');
-
 export const selectErrorLoadingAll = createSliceSelector('error');
-
-export const selectOwnOrgId = createSliceSelector('ownOrgId');
 
 export function selectOwnOrganization(state) {
 	const id = selectOwnOrgId(state);
@@ -126,8 +116,6 @@ const organizationSlice = createSlice({
 	name: 'organizations',
 	initialState: organizationAdapter.getInitialState({
 		loadingAll: false,
-		loadingOwnOrgId: false,
-		ownOrgId: null,
 		error: null,
 	}),
 	reducers: {},
@@ -168,18 +156,6 @@ const organizationSlice = createSlice({
 			organizationAdapter.upsertOne(state, wrapOrgData(action.payload));
 		},
 		[updateOrganization.rejected]: errorReducer,
-
-		[fetchOwnOrganization.pending]: (state, action) => {
-			state.loadingOwnOrgId = true;
-		},
-		[fetchOwnOrganization.fulfilled]: (state, action) => {
-			state.loadingOwnOrgId = false;
-			state.ownOrgId = action.payload;
-		},
-		[fetchOwnOrganization.rejected]: (state, action) => {
-			state.loadingOwnOrgId = false;
-			state.error = action.error;
-		},
 	}
 });
 

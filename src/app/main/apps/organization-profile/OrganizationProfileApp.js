@@ -4,12 +4,10 @@ import Error404Page from 'app/main/pages/errors/404/Error404Page';
 import OrganizationHeader from './OrganiztionHeader';
 // import OrganizationOverview from './OrganizationOverview';
 import MemberList from './MemberList';
+import { selectOwnOrgId, selectUserData } from 'app/auth/store/userSlice';
 import {
 	fetchOrganization,
-	fetchOwnOrganization,
-	selectOwnOrganization,
 	selectOrganization,
-	selectLoadingOwnOrgId,
 } from 'app/store/organization/organizationsSlice';
 import {
 	fetchMemberList,
@@ -27,38 +25,24 @@ function OrganizationProfileApp(props) {
 	const dispatch = useDispatch();
 
 	const routeParams = useParams();
-	const orgId = routeParams.orgId;
-	const ownOrgPage = orgId === 'own';
+	const reqOrgId = routeParams.orgId;
+	const ownOrgPage = reqOrgId === 'own';
+
+	const ownOrgId = useSelector(selectOwnOrgId);
+	// reqOrgId may be 'own', this is the actual resolved ID
+	const actualOrgId = ownOrgPage ? ownOrgId : reqOrgId;
 
 	// Fetch organization data
 	useEffect(() => {
-		if (ownOrgPage) {
-			dispatch(fetchOwnOrganization());
-		} else {
-			dispatch(fetchOrganization(orgId));
-		}
-	}, [dispatch, orgId, ownOrgPage]);
-
-	const organization = useSelector(
-		ownOrgPage
-			? selectOwnOrganization
-			: (state => selectOrganization(state, orgId))
-	);
-
-	// orgId may be 'own', this is the actual ID
-	const actualOrgId = organization?.data?.id;
-
-	// TODO Fetch at the same time as fetching the main organization data
-	// This requires some extra work resolving the own organization ID (which
-	// is asynchronous). Maybe instead of special-casing ones own organization
-	// in organizationsSlice, resolving the own organization ID could be the
-	// responsability of the caller (which can get it from auth/userSlice)
-	useEffect(() => {
 		if (actualOrgId) {
+			dispatch(fetchOrganization(actualOrgId));
 			dispatch(fetchMemberList(actualOrgId));
 			dispatch(fetchTeamList(actualOrgId));
 		}
-	}, [dispatch, actualOrgId]);
+	}, [actualOrgId, dispatch]);
+
+	const organization =
+		useSelector((state) => selectOrganization(state, actualOrgId));
 
 	const members = useSelector((state) => selectOrgMembers(state, actualOrgId));
 	const teams = useSelector((state) => selectOrgTeams(state, actualOrgId));
@@ -85,16 +69,14 @@ function OrganizationProfileApp(props) {
 		}));
 	}, [members, teams]);
 
-	const userTeam = useSelector(({ auth }) => auth.user.data?.teamId);
-
-	const loadingOrgId = useSelector(selectLoadingOwnOrgId);
+	const userTeam = useSelector(selectUserData)?.teamId;
 
 	const loadingOrganization = organization?.loading;
 
 	// TODO Redirect if requesting ones own organization but user does not belong
 	// to an organization
 
-	if (loadingOrgId || loadingOrganization) {
+	if (loadingOrganization) {
 		// If the organization object does not exist in the store, it hasn't been
 		// requested yet, so it is still loading
 		return <FuseLoading />;
