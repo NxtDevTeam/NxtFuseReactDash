@@ -4,6 +4,10 @@
 
 import globalAxios from 'axios';
 
+import CalendarApi from './CalendarApi';
+
+export * from './CalendarApi';
+
 /**
  * NxtAI backend API client.
  */
@@ -23,6 +27,11 @@ export default class NxtBackendApi {
 				Authorization: `Bearer ${accessToken}`,
 			},
 		});
+	}
+
+	get calendar() {
+		// TODO Store this as a field? Lazily evaluate?
+		return new CalendarApi(this);
 	}
 
 	/**

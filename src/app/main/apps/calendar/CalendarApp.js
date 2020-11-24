@@ -2,10 +2,11 @@ import FuseAnimate from '@fuse/core/FuseAnimate';
 import Fab from '@material-ui/core/Fab';
 import Icon from '@material-ui/core/Icon';
 import { makeStyles } from '@material-ui/core/styles';
+import { selectUserData } from 'app/auth/store/userSlice';
 import withReducer from 'app/store/withReducer';
 import clsx from 'clsx';
 import moment from 'moment';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
@@ -189,20 +190,30 @@ function CalendarApp(props) {
 		start: moment(event.start, dateFormat).toDate(),
 		end: moment(event.end, dateFormat).toDate()
 	}));
+	const user = useSelector(selectUserData);
+	const userId = user.id;
 
 	const classes = useStyles(props);
 	const headerEl = useRef(null);
 
+	const handleRefresh = useCallback(() => {
+		if (userId) {
+			dispatch(getEvents(userId));
+		}
+	}, [userId, dispatch]);
+
 	useEffect(() => {
-		dispatch(getEvents());
-	}, [dispatch]);
+		handleRefresh();
+	}, [handleRefresh]);
 
 	function moveEvent({ event, start, end }) {
 		dispatch(
 			updateEvent({
-				...event,
-				start,
-				end
+				eventId: event.id,
+				data: {
+					start,
+					end
+				},
 			})
 		);
 	}
@@ -211,9 +222,11 @@ function CalendarApp(props) {
 		delete event.type;
 		dispatch(
 			updateEvent({
-				...event,
-				start,
-				end
+				eventId: event.id,
+				data: {
+					start,
+					end
+				},
 			})
 		);
 	}
@@ -230,16 +243,21 @@ function CalendarApp(props) {
 				resizable
 				onEventResize={resizeEvent}
 				defaultView={Views.MONTH}
-				defaultDate={new Date(2020, 3, 1)}
 				startAccessor="start"
 				endAccessor="end"
+				allDayAccessor="all_day"
 				views={allViews}
 				step={60}
 				showMultiDayTimes
 				components={{
 					toolbar: _props => {
 						return headerEl.current
-							? ReactDOM.createPortal(<CalendarHeader {..._props} />, headerEl.current)
+							? ReactDOM.createPortal((
+								<CalendarHeader
+									{..._props}
+									handleRefresh={handleRefresh}
+								/>
+							), headerEl.current)
 							: null;
 					}
 				}}

@@ -1,3 +1,4 @@
+import { authRoles } from 'app/auth';
 import React from 'react';
 
 const CalendarAppConfig = {
@@ -6,6 +7,7 @@ const CalendarAppConfig = {
 			config: {}
 		}
 	},
+	auth: authRoles.user,
 	routes: [
 		{
 			path: '/apps/calendar',
