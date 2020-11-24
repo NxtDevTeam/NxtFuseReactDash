@@ -3,7 +3,7 @@
  */
 const authRoles = {
 	globalAdmin: ['GlobalAdmin'],
-	orgAdmin: ['OrganizationAdmin'],
+	orgAdmin: ['GlobalAdmin', 'OrganizationAdmin'],
 	user: ['GlobalAdmin', 'OrganizationAdmin', 'Member'],
 	onlyGuest: []
 };

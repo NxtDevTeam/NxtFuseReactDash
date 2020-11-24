@@ -21,6 +21,7 @@ export const setUserDataAuth0 = data => async dispatch => {
 		role: roles,
 		from: 'auth0',
 		data: {
+			id: data.sub,
 			displayName: data.username || data.name,
 			photoURL: data.picture,
 			email: data.email,
@@ -186,10 +187,17 @@ export const updateUserData = user => async (dispatch, getState) => {
 	}
 };
 
+const selectUserSlice = (state) => state.auth.user;
+const selectSliceProp = (prop) => (state) => selectUserSlice(state)[prop];
+export const selectUserData = selectSliceProp('data');
+export const selectUserRole = selectSliceProp('role');
+export const selectUserName = (state) => selectUserData(state).displayName;
+export const selectOwnOrgId = (state) => selectUserData(state).organizationId;
+
 const initialState = {
 	role: [], // guest
 	data: {
-		displayName: "",
+		displayName: '',
 		shortcuts: [],
 	}
 };
@@ -198,8 +206,8 @@ const userSlice = createSlice({
 	name: 'auth/user',
 	initialState,
 	reducers: {
-		setUser: (state, action) => action.payload,
-		userLoggedOut: (state, action) => initialState
+		setUser: (_, action) => action.payload,
+		userLoggedOut: () => initialState
 	},
 	extraReducers: {}
 });

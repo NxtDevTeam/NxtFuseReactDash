@@ -7,6 +7,8 @@ import {
 import auth0Service from 'app/services/auth0Service';
 import NxtBackendApi from 'app/nxt-api';
 
+import { selectOwnOrgId } from 'app/auth/store/userSlice';
+
 export const fetchTeamList = createAsyncThunk(
 	'organization/teams/fetchAll',
 	async (orgId) => {
@@ -31,9 +33,18 @@ const teamsAdapter = createEntityAdapter();
 
 export const selectTeamsSlice = (state) => state.organization.teams;
 
-export const {
+const {
 	selectById: selectOrgTeams,
+	selectEntities: selectTeamEntities,
 } = teamsAdapter.getSelectors(selectTeamsSlice);
+
+export { selectOrgTeams };
+
+export const selectOwnOrgTeams = createSelector(
+	selectTeamEntities,
+	selectOwnOrgId,
+	(teamsMap, ownOrgId) => ownOrgId ? teamsMap[ownOrgId] : undefined
+);
 
 const teamsSlice = createSlice({
 	name: 'teams',

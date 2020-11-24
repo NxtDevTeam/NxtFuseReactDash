@@ -1,3 +1,4 @@
+import { authRoles } from 'app/auth';
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 
@@ -7,6 +8,7 @@ const OrganizationProfileAppConfig = {
 			config: {}
 		}
 	},
+	auth: authRoles.user,
 	routes: [
 		{
 			path: '/apps/organization/:orgId',
