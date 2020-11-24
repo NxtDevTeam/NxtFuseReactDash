@@ -1,38 +1,68 @@
 import { createEntityAdapter, createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
 import moment from 'moment';
+
+import { showMessage } from 'app/store/fuse/messageSlice'
+import auth0Service from 'app/services/auth0Service';
+import NxtBackendApi from 'app/nxt-api';
 
 export const dateFormat = 'YYYY-MM-DDTHH:mm:ss.sssZ';
 
-export const getEvents = createAsyncThunk('calendarApp/events/getEvents', async () => {
-	const response = await axios.get('/api/calendar-app/events');
-	const data = await response.data;
+export const getEvents = createAsyncThunk(
+	'calendarApp/events/getEvents',
+	async (userId, { dispatch }) => {
+		const token = await auth0Service.getNxtBackendToken();
+		const api = new NxtBackendApi(token).calendar;
 
-	return data;
-});
-
-export const addEvent = createAsyncThunk('calendarApp/events/addEvent', async (newEvent, { dispatch }) => {
-	const response = await axios.post('/api/calendar-app/add-event', {
-		newEvent
+		try {
+			return await api.getUserCalendar(userId);
+		} catch (e) {
+			dispatch(showMessage({ message: 'Failed to fetch calendar events' }));
+			throw e;
+		}
 	});
-	const data = await response.data;
 
-	return data;
-});
+export const addEvent = createAsyncThunk(
+	'calendarApp/events/addEvent',
+	async (data, { dispatch }) => {
+		const token = await auth0Service.getNxtBackendToken();
+		const api = new NxtBackendApi(token).calendar;
 
-export const updateEvent = createAsyncThunk('calendarApp/events/updateEvent', async (event, { dispatch }) => {
-	const response = await axios.post('/api/calendar-app/update-event', { event });
-	const data = await response.data;
+		try {
+			return await api.createEvent(data);
+		} catch (e) {
+			dispatch(showMessage({ message: 'Could not add calendar event' }));
+			throw e;
+		}
+	});
 
-	return data;
-});
+export const updateEvent = createAsyncThunk(
+	'calendarApp/events/updateEvent',
+	async ({ eventId, data }, { dispatch, getState }) => {
+		const token = await auth0Service.getNxtBackendToken();
+		const api = new NxtBackendApi(token).calendar;
 
-export const removeEvent = createAsyncThunk('calendarApp/events/remove-event', async (eventId, { dispatch }) => {
-	const response = await axios.post('/api/calendar-app/remove-event', { eventId });
-	const data = await response.data;
+		try {
+			return await api.updateEvent(eventId, data);
+		} catch (e) {
+			dispatch(showMessage({ message: 'Could not update calendar event' }));
+			throw e;
+		}
+	});
 
-	return data.id;
-});
+export const removeEvent = createAsyncThunk(
+	'calendarApp/events/removeEvent',
+	async (eventId, { dispatch }) => {
+		const token = await auth0Service.getNxtBackendToken();
+		const api = new NxtBackendApi(token).calendar;
+
+		try {
+			await api.deleteEvent(eventId);
+			return eventId;
+		} catch (e) {
+			dispatch(showMessage({ message: 'Could not remove calendar event' }));
+			throw e;
+		}
+	});
 
 const eventsAdapter = createEntityAdapter({});
 
@@ -113,7 +143,42 @@ const eventsSlice = createSlice({
 	extraReducers: {
 		[getEvents.fulfilled]: eventsAdapter.setAll,
 		[addEvent.fulfilled]: eventsAdapter.addOne,
-		[updateEvent.fulfilled]: eventsAdapter.upsertOne,
+
+		// Optimisticly update the local state when modifying an event (to avoid
+		// flickering back to the original event time when an event is dragged to
+		// a new time)
+		[updateEvent.pending]: (state, action) => {
+			const { eventId, data } = action.meta.arg;
+
+			// Use the raw selectors since the state value here is local to this slice
+			const original = eventsAdapter.getSelectors().selectById(state, eventId);
+			eventsAdapter.updateOne(state, {
+				id: eventId,
+				changes: {
+					...data,
+					undoState: original,
+				},
+			});
+		},
+		[updateEvent.fulfilled]: (state, action) => {
+			eventsAdapter.upsertOne(state, {
+				...action.payload,
+				undoState: undefined,
+			});
+		},
+		[updateEvent.rejected]: (state, action) => {
+			// Restore the state
+			const { eventId } = action.meta.arg;
+			const current = eventsAdapter.getSelectors().selectById(state, eventId);
+			eventsAdapter.updateOne(state, {
+				id: eventId,
+				changes: {
+					...current.undoState,
+					undoState: undefined,
+				},
+			});
+		},
+
 		[removeEvent.fulfilled]: eventsAdapter.removeOne
 	}
 });

@@ -6,8 +6,12 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
 import Icon from '@material-ui/core/Icon';
+import InputLabel from '@material-ui/core/InputLabel';
 import IconButton from '@material-ui/core/IconButton';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 import Switch from '@material-ui/core/Switch';
 import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -16,21 +20,60 @@ import { DateTimePicker } from '@material-ui/pickers';
 import moment from 'moment';
 import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { removeEvent, updateEvent, addEvent, closeNewEventDialog, closeEditEventDialog } from './store/eventsSlice';
+
+import { buildCalendarId } from 'app/nxt-api/CalendarApi';
+import { authRoles } from 'app/auth';
+import { selectUserData, selectUserRole } from 'app/auth/store/userSlice';
+import {
+	selectOwnOrganization,
+} from 'app/store/organization/organizationsSlice';
+import {
+	fetchTeamList,
+	selectOwnOrgTeams,
+} from 'app/store/organization/teamsSlice';
+import {
+	removeEvent,
+	updateEvent,
+	addEvent,
+	closeNewEventDialog,
+	closeEditEventDialog,
+} from './store/eventsSlice';
 
 const defaultFormState = {
-	id: FuseUtils.generateGUID(),
+	calendar_id: '',
 	title: '',
-	allDay: true,
+	all_day: false,
 	start: moment(new Date(), 'MM/DD/YYYY'),
 	end: moment(new Date(), 'MM/DD/YYYY'),
-	desc: ''
+	description: '',
 };
 
 function EventDialog(props) {
 	const dispatch = useDispatch();
-	const eventDialog = useSelector(({ calendarApp }) => calendarApp.events.eventDialog);
+	const eventDialog =
+		useSelector(({ calendarApp }) => calendarApp.events.eventDialog);
 	const { form, handleChange, setForm, setInForm } = useForm(defaultFormState);
+
+	const userData = useSelector(selectUserData);
+	const userId = userData.id;
+
+	const userRole = useSelector(selectUserRole);
+	const isAdmin = FuseUtils.hasPermission(authRoles.orgAdmin, userRole);
+	const canChangeEventCalendar =
+		isAdmin
+		|| !form.calendar_id
+		|| form.calendar_id === buildCalendarId('user', userId);
+
+	// Fetch list of teams for making the calendar list
+	const orgId = userData.organizationId;
+	useEffect(() => {
+		if (orgId) {
+			dispatch(fetchTeamList(orgId));
+		}
+	}, [orgId, dispatch]);
+
+	const ownOrg = useSelector(selectOwnOrganization)?.data;
+	let ownOrgTeams = useSelector(selectOwnOrgTeams)?.data;
 
 	const initDialog = useCallback(() => {
 		/**
@@ -47,7 +90,6 @@ function EventDialog(props) {
 			setForm({
 				...defaultFormState,
 				...eventDialog.data,
-				id: FuseUtils.generateGUID()
 			});
 		}
 	}, [eventDialog.data, eventDialog.type, setForm]);
@@ -75,7 +117,17 @@ function EventDialog(props) {
 		if (eventDialog.type === 'new') {
 			dispatch(addEvent(form));
 		} else {
-			dispatch(updateEvent(form));
+			dispatch(updateEvent({
+				eventId: form.id,
+				data: {
+					calendar_id: form.calendar_id,
+					title: form.title,
+					description: form.description,
+					all_day: form.all_day,
+					start: form.start,
+					end: form.end,
+				},
+			}));
 		}
 		closeComposeDialog();
 	}
@@ -99,14 +151,20 @@ function EventDialog(props) {
 			<AppBar position="static">
 				<Toolbar className="flex w-full">
 					<Typography variant="subtitle1" color="inherit">
-						{eventDialog.type === 'new' ? 'New Event' : 'Edit Event'}
+						{eventDialog.type === 'new'
+							? 'New Event'
+							: canChangeEventCalendar ? 'Edit Event' : 'Event Details'}
 					</Typography>
 				</Toolbar>
 			</AppBar>
 
 			<form noValidate onSubmit={handleSubmit}>
-				<DialogContent classes={{ root: 'p-16 pb-0 sm:p-24 sm:pb-0' }}>
+				<DialogContent
+					classes={{ root: 'p-16 pb-0 sm:p-24 sm:pb-0' }}
+					className="flex flex-col"
+				>
 					<TextField
+						disabled={!canChangeEventCalendar}
 						id="title"
 						label="Title"
 						className="mt-8 mb-16"
@@ -125,10 +183,58 @@ function EventDialog(props) {
 					<FormControlLabel
 						className="mt-8 mb-16"
 						label="All Day"
-						control={<Switch checked={form.allDay} id="allDay" name="allDay" onChange={handleChange} />}
+						control={
+							<Switch
+								disabled={!canChangeEventCalendar}
+								checked={form.all_day}
+								id="all_day"
+								name="all_day"
+								onChange={handleChange}
+							/>
+						}
 					/>
 
+					<FormControl variant="outlined">
+						<InputLabel id="calendar-id-label">Calendar</InputLabel>
+						<Select
+							required
+							disabled={!canChangeEventCalendar}
+							value={form.calendar_id}
+							id="calendar_id"
+							labelId="calendar-id-label"
+							label="Calendar"
+							name="calendar_id"
+							onChange={handleChange}
+						>
+							<MenuItem value={buildCalendarId('user', userId)}>
+								Personal
+							</MenuItem>
+
+							{ownOrg &&
+								<MenuItem
+									value={buildCalendarId('organization', ownOrg.id)}
+									disabled={!isAdmin}
+								>
+									{ownOrg.name}
+								</MenuItem>
+							}
+
+							{ownOrgTeams &&
+								ownOrgTeams.map((team) => (
+									<MenuItem
+										key={team.id}
+										value={buildCalendarId('team', team.id)}
+										disabled={!isAdmin}
+									>
+										{team.name}
+									</MenuItem>
+								))
+							}
+						</Select>
+					</FormControl>
+
 					<DateTimePicker
+						disabled={!canChangeEventCalendar}
 						label="Start"
 						inputVariant="outlined"
 						value={form.start}
@@ -138,6 +244,7 @@ function EventDialog(props) {
 					/>
 
 					<DateTimePicker
+						disabled={!canChangeEventCalendar}
 						label="End"
 						inputVariant="outlined"
 						value={form.end}
@@ -147,12 +254,13 @@ function EventDialog(props) {
 					/>
 
 					<TextField
+						disabled={!canChangeEventCalendar}
 						className="mt-8 mb-16"
-						id="desc"
+						id="description"
 						label="Description"
 						type="text"
-						name="desc"
-						value={form.desc}
+						name="description"
+						value={form.description}
 						onChange={handleChange}
 						multiline
 						rows={5}
@@ -168,15 +276,18 @@ function EventDialog(props) {
 						</Button>
 					</DialogActions>
 				) : (
-					<DialogActions className="justify-between px-8 sm:px-16">
-						<Button variant="contained" color="primary" type="submit" disabled={!canBeSubmitted()}>
-							Save
-						</Button>
-						<IconButton onClick={handleRemove}>
-							<Icon>delete</Icon>
-						</IconButton>
-					</DialogActions>
-				)}
+						canChangeEventCalendar
+							?
+							<DialogActions className="justify-between px-8 sm:px-16">
+								<Button variant="contained" color="primary" type="submit" disabled={!canBeSubmitted()}>
+									Save
+								</Button>
+								<IconButton onClick={handleRemove}>
+									<Icon>delete</Icon>
+								</IconButton>
+							</DialogActions>
+							: null
+					)}
 			</form>
 		</Dialog>
 	);

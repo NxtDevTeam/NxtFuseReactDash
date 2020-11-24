@@ -131,7 +131,7 @@ class CalendarHeader extends Toolbar {
 	}
 
 	render() {
-		const { classes, mainThemeDark, label, date } = this.props;
+		const { classes, mainThemeDark, label, date, handleRefresh } = this.props;
 
 		return (
 			<ThemeProvider theme={mainThemeDark}>
@@ -159,7 +159,16 @@ class CalendarHeader extends Toolbar {
 										</FuseAnimate>
 									</div>
 								</Tooltip>
+
 								{this.viewButtons()}
+
+								<Tooltip title="Refresh">
+									<FuseAnimate animation="transition.expandIn" delay={500}>
+										<IconButton aria-label="refresh" onClick={handleRefresh}>
+											<Icon>refresh</Icon>
+										</IconButton>
+									</FuseAnimate>
+								</Tooltip>
 							</div>
 						</div>
 
