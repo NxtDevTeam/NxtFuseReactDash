@@ -6,14 +6,14 @@ import {
 
 import { selectOwnOrgId } from 'app/auth/store/userSlice';
 import auth0Service from 'app/services/auth0Service';
-import NxtBackendApi from 'app/nxt-api';
+import { NxtCoreApi } from 'app/nxt-api';
 
 export const fetchOrganization = createAsyncThunk(
 	'organization/fetchOne',
 	async (orgId) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		return await api.getOrganization(orgId);
 	}
 );
@@ -23,7 +23,7 @@ export const fetchAllOrganizations = createAsyncThunk(
 	async () => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		return await api.getAllOrganizations();
 	}
 );
@@ -33,7 +33,7 @@ export const updateOrganization = createAsyncThunk(
 	async ({ orgId, organization }) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		return await api.updateOrganization(orgId, organization);
 	}
 );

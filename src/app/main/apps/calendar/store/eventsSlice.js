@@ -3,7 +3,7 @@ import moment from 'moment';
 
 import { showMessage } from 'app/store/fuse/messageSlice'
 import auth0Service from 'app/services/auth0Service';
-import NxtBackendApi from 'app/nxt-api';
+import { NxtCoreApi } from 'app/nxt-api';
 
 export const dateFormat = 'YYYY-MM-DDTHH:mm:ss.sssZ';
 
@@ -11,7 +11,7 @@ export const getEvents = createAsyncThunk(
 	'calendarApp/events/getEvents',
 	async (userId, { dispatch }) => {
 		const token = await auth0Service.getNxtBackendToken();
-		const api = new NxtBackendApi(token).calendar;
+		const api = new NxtCoreApi(token).calendar;
 
 		try {
 			return await api.getUserCalendar(userId);
@@ -25,7 +25,7 @@ export const addEvent = createAsyncThunk(
 	'calendarApp/events/addEvent',
 	async (data, { dispatch }) => {
 		const token = await auth0Service.getNxtBackendToken();
-		const api = new NxtBackendApi(token).calendar;
+		const api = new NxtCoreApi(token).calendar;
 
 		try {
 			return await api.createEvent(data);
@@ -39,7 +39,7 @@ export const updateEvent = createAsyncThunk(
 	'calendarApp/events/updateEvent',
 	async ({ eventId, data }, { dispatch, getState }) => {
 		const token = await auth0Service.getNxtBackendToken();
-		const api = new NxtBackendApi(token).calendar;
+		const api = new NxtCoreApi(token).calendar;
 
 		try {
 			return await api.updateEvent(eventId, data);
@@ -53,7 +53,7 @@ export const removeEvent = createAsyncThunk(
 	'calendarApp/events/removeEvent',
 	async (eventId, { dispatch }) => {
 		const token = await auth0Service.getNxtBackendToken();
-		const api = new NxtBackendApi(token).calendar;
+		const api = new NxtCoreApi(token).calendar;
 
 		try {
 			await api.deleteEvent(eventId);

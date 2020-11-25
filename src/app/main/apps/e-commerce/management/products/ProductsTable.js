@@ -18,7 +18,7 @@ import {
 } from '../../store/productsSlice';
 import { getAllProductCategories } from '../../store/productCategoriesSlice';
 import ProductsTableHead from './ProductsTableHead';
-import { buildProductImageUrl } from 'app/nxt-api';
+import { buildProductImageUrl } from 'app/nxt-api/MarketplaceApi';
 
 function ProductsTable(props) {
 	const dispatch = useDispatch();

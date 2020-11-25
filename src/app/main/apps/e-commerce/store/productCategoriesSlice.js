@@ -7,14 +7,15 @@ import {
 import _ from '@lodash';
 
 import auth0Service from 'app/services/auth0Service';
-import NxtBackendApi, { buildCategoryImageUrl } from 'app/nxt-api';
+import { NxtCoreApi } from 'app/nxt-api';
+import { buildCategoryImageUrl } from 'app/nxt-api/MarketplaceApi';
 
 export const getProductCategory = createAsyncThunk(
 	'eCommerceApp/productCategories/fetchOne',
 	async (categoryId) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		return await api.marketplace.getCategory(categoryId);
 	}
 );
@@ -24,7 +25,7 @@ export const getAllProductCategories = createAsyncThunk(
 	async () => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		return await api.marketplace.getAllProductCategories();
 	}
 );
@@ -34,7 +35,7 @@ export const updateCategory = createAsyncThunk(
 	async ({ categoryId, category }) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		return await api.marketplace.updateCategory(categoryId, category);
 	}
 );
@@ -44,7 +45,7 @@ export const uploadCategoryImage = createAsyncThunk(
 	async ({ categoryId, file }) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		return await api.marketplace.uploadCategoryImage(categoryId, file);
 	})
 

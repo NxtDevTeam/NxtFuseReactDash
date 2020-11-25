@@ -4,14 +4,14 @@ import {
 	createEntityAdapter,
 } from '@reduxjs/toolkit';
 import auth0Service from 'app/services/auth0Service';
-import NxtBackendApi from 'app/nxt-api';
+import { NxtCoreApi } from 'app/nxt-api';
 
 export const fetchUser = createAsyncThunk(
 	'users/fetchOne',
 	async (userId) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		return await api.getUser(userId);
 	}
 );

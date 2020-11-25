@@ -15,7 +15,7 @@ import withReducer from 'app/store/withReducer';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
-import { buildProductImageUrl } from 'app/nxt-api';
+import { buildProductImageUrl } from 'app/nxt-api/MarketplaceApi';
 import reducer from '../../store';
 import { getOrder, selectOrderById } from '../../store/ordersSlice';
 import OrderInvoice from './OrderInvoice';

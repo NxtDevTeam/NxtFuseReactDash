@@ -4,7 +4,7 @@ import {
 	createEntityAdapter,
 } from '@reduxjs/toolkit';
 import auth0Service from 'app/services/auth0Service';
-import NxtBackendApi from 'app/nxt-api';
+import { NxtCoreApi } from 'app/nxt-api';
 import { selectOwnOrgId } from 'app/auth/store/userSlice';
 import { showMessage } from 'app/store/fuse/messageSlice';
 
@@ -15,7 +15,7 @@ export const getDataSources = createAsyncThunk(
 
 		const orgId = selectOwnOrgId(getState());
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		try {
 			return await api.getAllDataSources(orgId);
 		} catch (e) {
@@ -31,7 +31,7 @@ export const createDataSource = createAsyncThunk(
 
 		const orgId = selectOwnOrgId(getState());
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		try {
 			return await api.createDataSource(orgId, dataSource);
 		} catch (e) {
@@ -47,7 +47,7 @@ export const updateDataSource = createAsyncThunk(
 
 		const orgId = selectOwnOrgId(getState());
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		try {
 			return await api.updateDataSource(orgId, id, data);
 		} catch (e) {
@@ -63,7 +63,7 @@ export const deleteDataSource = createAsyncThunk(
 
 		const orgId = selectOwnOrgId(getState());
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		try {
 			await api.deleteDataSource(orgId, id);
 			return id;

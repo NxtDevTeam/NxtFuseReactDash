@@ -6,7 +6,8 @@ import {
 } from '@reduxjs/toolkit';
 import _ from '@lodash';
 import auth0Service from 'app/services/auth0Service';
-import NxtBackendApi, { buildProductImageUrl } from 'app/nxt-api';
+import { NxtCoreApi } from 'app/nxt-api';
+import { buildProductImageUrl } from 'app/nxt-api/MarketplaceApi';
 import { selectCategoriesMap } from './productCategoriesSlice';
 
 export const getProducts = createAsyncThunk(
@@ -14,7 +15,7 @@ export const getProducts = createAsyncThunk(
 	async () => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		return await api.marketplace.getAllProducts();
 	});
 
@@ -23,7 +24,7 @@ export const getProduct = createAsyncThunk(
 	async (id) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		return await api.marketplace.getProduct(id);
 	});
 
@@ -32,7 +33,7 @@ export const uploadProductImages = createAsyncThunk(
 	async ({ productId, images }) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 
 		// Try updating all of them. Even if any of the uploads fail, still
 		// continue on to re-fetch the product data.
@@ -51,7 +52,7 @@ export const saveProduct = createAsyncThunk(
 	async ({ id, data, imagesToUpload }, { dispatch }) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 
 		// Run this first so that the "main" update returns back the new images
 		// uploaded and so that the featured image ID is valid.
@@ -68,7 +69,7 @@ export const createProduct = createAsyncThunk(
 	async ({ data, imagesToUpload }, { dispatch }) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		const product = await api.marketplace.createProduct(data);
 		await dispatch(uploadProductImages({
 			productId: product.id,
@@ -83,7 +84,7 @@ export const removeProduct = createAsyncThunk(
 	async (id) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		// Products cannot be deleted, since they may be referenced from orders, so
 		// just mark the product as unavailable.
 		await api.marketplace.updateProduct(id, { available: false });

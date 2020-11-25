@@ -5,7 +5,7 @@ import {
 	createSelector,
 } from '@reduxjs/toolkit';
 import auth0Service from 'app/services/auth0Service';
-import NxtBackendApi from 'app/nxt-api';
+import { NxtCoreApi } from 'app/nxt-api';
 import { fetchUser, selectUsersMap } from 'app/store/usersSlice';
 import {
 	fetchOrganization,
@@ -94,7 +94,7 @@ export const getOrders = createAsyncThunk(
 		fetchProducts = true,
 	} = {}, { dispatch }) => {
 		const token = await auth0Service.getNxtBackendToken();
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 
 		const orders = await api.marketplace.getAllOrders();
 		fetchOrderRefs(
@@ -112,7 +112,7 @@ export const getUserOrders = createAsyncThunk(
 		fetchProducts = true,
 	}, { dispatch }) => {
 		const token = await auth0Service.getNxtBackendToken();
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		const orders = await api.marketplace.getUserOrders(userId);
 		fetchOrderRefs(
 			orders, { fetchUsers, fetchOrganizations, fetchProducts }, dispatch);
@@ -128,7 +128,7 @@ export const getOrder = createAsyncThunk(
 		fetchProducts = true,
 	}, { dispatch }) => {
 		const token = await auth0Service.getNxtBackendToken();
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		const order = await api.marketplace.getOrder(id);
 		fetchOrderRefs(
 			order, { fetchUsers, fetchOrganizations, fetchProducts }, dispatch);
@@ -139,7 +139,7 @@ export const createOrder = createAsyncThunk(
 	'eCommerceApp/order/saveOrder',
 	async (data) => {
 		const token = await auth0Service.getNxtBackendToken();
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		return await api.marketplace.createOrder(data);
 	});
 
@@ -147,7 +147,7 @@ export const saveOrder = createAsyncThunk(
 	'eCommerceApp/order/saveOrder',
 	async ({ id, data }) => {
 		const token = await auth0Service.getNxtBackendToken();
-		const api = new NxtBackendApi(token);
+		const api = new NxtCoreApi(token);
 		return await api.marketplace.updateOrder(id, data);
 	});
 
