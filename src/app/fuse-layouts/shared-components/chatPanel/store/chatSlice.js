@@ -5,7 +5,7 @@ import {
 } from '@reduxjs/toolkit';
 
 import auth0Service from 'app/services/auth0Service';
-import NxtBackendApi from 'app/nxt-api';
+import { NxtChatApi } from 'app/nxt-api';
 import { fetchUser } from 'app/store/usersSlice';
 import { setSelectedContactId } from './contactsSlice';
 import { closeChatPanel } from './stateSlice';
@@ -30,7 +30,7 @@ export const getChat = createAsyncThunk(
 	async (chatId, { dispatch }) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtChatApi(token);
 		const messages = await api.getChatMessages(chatId);
 
 		dispatch(setSelectedContactId(chatId));
@@ -63,7 +63,7 @@ export const getNewMessages = createAsyncThunk(
 			query.after = lastMessage.timestamp;
 		}
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtChatApi(token);
 		const messages = await api.getChatMessages(chatId, query);
 
 		// dispatch(updateUserChatList(userChatList));
@@ -81,7 +81,7 @@ export const sendMessage = createAsyncThunk(
 	async ({ chatId, messageText }) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const api = new NxtBackendApi(token);
+		const api = new NxtChatApi(token);
 		const message = api.sendChatMessage(chatId, messageText);
 
 		// dispatch(updateUserChatList(userChatList));

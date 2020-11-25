@@ -23,7 +23,7 @@ export default class CalendarApi {
 	/**
 	 * Constructs the wrapper from the base backend API wrapper.
 	 *
-	 * @param {NxtBackendApi} api API wrapper instance (which abstracts the base
+	 * @param {NxtCoreApi} api API wrapper instance (which abstracts the base
 	 * URL and authentication).
 	 */
 	constructor(api) {
