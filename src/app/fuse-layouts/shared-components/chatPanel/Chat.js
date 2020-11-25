@@ -241,7 +241,7 @@ function Chat(props) {
 											: allUsers.find(u => u.data?.id === item.sender_id)?.data;
 									return (
 										<div
-											key={item.time}
+											key={item.id}
 											className={clsx(
 												classes.messageRow,
 												{ me: item.sender_id === user.id },
@@ -256,7 +256,7 @@ function Chat(props) {
 											<div className={classes.bubble}>
 												<div className={classes.message}>{item.message}</div>
 												<Typography className={classes.time} color="textSecondary">
-													{moment(item.time).format('MMMM Do YYYY, h:mm:ss a')}
+													{moment(item.timestamp).format('MMMM Do YYYY, h:mm:ss a')}
 												</Typography>
 											</div>
 										</div>
