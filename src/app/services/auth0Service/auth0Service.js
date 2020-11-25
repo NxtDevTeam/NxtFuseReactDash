@@ -19,6 +19,7 @@ class Auth0Service {
 			domain: AUTH_CONFIG.domain,
 			client_id: AUTH_CONFIG.clientId,
 			redirect_uri: AUTH_CONFIG.callbackUrl,
+			audience: AUTH_CONFIG.nxtApiAudience,
 		});
 	}
 

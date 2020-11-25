@@ -49,14 +49,13 @@ export const getNewMessages = createAsyncThunk(
 	async (_, { dispatch, getState }) => {
 		const token = await auth0Service.getNxtBackendToken();
 
-		const state = getState().chatPanel.chat;
-		const chatId = state.chatId;
+		const state = getState();
+		const chatId = selectChatId(state);
 		if (!chatId) {
 			throw new Error('No chat for which to fetch messages');
 		}
 
-		const loadedMessages = state.messages || [];
-		const lastMessage = loadedMessages[loadedMessages.length - 1];
+		const lastMessage = selectLastMessage(state);
 
 		// Build query for messages after the ones already cached
 		const query = {};
@@ -71,12 +70,15 @@ export const getNewMessages = createAsyncThunk(
 
 		fetchMessageSenders(messages, dispatch);
 
-		return messages;
+		return {
+			chatId,
+			messages,
+		};
 	});
 
 export const sendMessage = createAsyncThunk(
 	'chatPanel/chat/sendMessage',
-	async ({ messageText, chatId }, { dispatch, getState }) => {
+	async ({ chatId, messageText }) => {
 		const token = await auth0Service.getNxtBackendToken();
 
 		const api = new NxtBackendApi(token);
@@ -93,9 +95,27 @@ const messagesAdapter = createEntityAdapter({
 	sortComparer: (a, b) => a.timestamp >= b.timestamp,
 });
 
-export const {
+const selectSlice = (state) => state.chatPanel.chat;
+
+const {
+	selectIds: selectMessageIds,
+	selectById: selectMessage,
 	selectAll: selectMessages,
-} = messagesAdapter.getSelectors(state => state.chatPanel.chat);
+} = messagesAdapter.getSelectors(selectSlice);
+
+export { selectMessages };
+
+const selectLastMessageId = (state) => {
+	const ids = selectMessageIds(state);
+	return ids.length > 0 ? ids[ids.length - 1] : undefined;
+};
+
+const selectLastMessage = (state) => {
+	const lastId = selectLastMessageId(state);
+	return selectMessage(state, lastId);
+};
+
+export const selectChatId = (state) => selectSlice(state).chatId;
 
 const chatSlice = createSlice({
 	name: 'chatPanel/chat',
@@ -110,13 +130,16 @@ const chatSlice = createSlice({
 			messagesAdapter.setAll(state, messages);
 		},
 		[getNewMessages.fulfilled]: (state, action) => {
-			messagesAdapter.upsertMany(state, action.payload);
+			const { chatId, messages } = action.payload;
+			if (chatId === state.chatId) {
+				// Only take in messages for the current chat (in case a response comes
+				// in after switching to a new chat).
+				messagesAdapter.upsertMany(state, messages);
+			}
 		},
-		[sendMessage.fulfilled]: (state, action) => {
-			messagesAdapter.upsertOne(state, action.payload);
-		},
+		[sendMessage.fulfilled]: messagesAdapter.upsertOne,
 
-		[closeChatPanel]: (state, action) => {
+		[closeChatPanel]: (state) => {
 			state.chatId = null;
 			messagesAdapter.setAll(state, []);
 		}
