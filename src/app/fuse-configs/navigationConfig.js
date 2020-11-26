@@ -47,6 +47,13 @@ const navigationConfig = [
 				]
 			},
 			{
+				id: 'data-library',
+				title: 'Data Library',
+				type: 'item',
+				icon: 'folder',
+				url: '/apps/data-library'
+			},
+			{
 				id: 'calendar',
 				title: 'Calendar',
 				translate: 'CALENDAR',
@@ -132,14 +139,6 @@ const navigationConfig = [
 					bg: 'rgb(255, 111, 0)',
 					fg: '#FFFFFF'
 				}
-			},
-			{
-				id: 'file-manager',
-				title: 'File Manager',
-				translate: 'FILE_MANAGER',
-				type: 'item',
-				icon: 'folder',
-				url: '/apps/file-manager'
 			},
 			{
 				id: 'contacts',
