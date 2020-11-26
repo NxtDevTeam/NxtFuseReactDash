@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, createEntityAdapter } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-export const getFiles = createAsyncThunk('fileManagerApp/files/getFiles', async () => {
+export const getFiles = createAsyncThunk('dataLibrary/files/getFiles', async () => {
 	const response = await axios.get('/api/file-manager-app/files');
 	const data = await response.data;
 
@@ -10,14 +10,22 @@ export const getFiles = createAsyncThunk('fileManagerApp/files/getFiles', async 
 
 const filesAdapter = createEntityAdapter({});
 
+const selectSlice = (state) => state.dataLibrary.files;
+
 export const {
 	selectAll: selectFiles,
 	selectEntities: selectFilesEntities,
 	selectById: selectFileById
-} = filesAdapter.getSelectors(state => state.fileManagerApp.files);
+} = filesAdapter.getSelectors(selectSlice);
+
+export const selectSelectedItemId =
+	(state) => selectSlice(state).selectedItemId;
+
+export const selectSelectedFile =
+	(state) => selectFileById(state, selectSelectedItemId(state));
 
 const filesSlice = createSlice({
-	name: 'fileManagerApp/files',
+	name: 'dataLibrary/files',
 	initialState: filesAdapter.getInitialState({
 		selectedItemId: '1'
 	}),

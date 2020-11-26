@@ -11,7 +11,11 @@ import TableRow from '@material-ui/core/TableRow';
 import clsx from 'clsx';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedItem, selectFiles } from './store/filesSlice';
+import {
+	setSelectedItem,
+	selectSelectedItemId,
+	selectFiles,
+} from './store/filesSlice';
 
 const useStyles = makeStyles({
 	typeIcon: {
@@ -33,7 +37,7 @@ const useStyles = makeStyles({
 function FileList(props) {
 	const dispatch = useDispatch();
 	const files = useSelector(selectFiles);
-	const selectedItemId = useSelector(({ fileManagerApp }) => fileManagerApp.files.selectedItemId);
+	const selectedItemId = useSelector(selectSelectedItemId);
 
 	const classes = useStyles();
 
