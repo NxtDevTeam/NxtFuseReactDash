@@ -1,8 +1,8 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import files from './filesSlice';
+import dataSources from './dataSourcesSlice';
 
 const reducer = combineReducers({
-	files
+	dataSources
 });
 
 export default reducer;
