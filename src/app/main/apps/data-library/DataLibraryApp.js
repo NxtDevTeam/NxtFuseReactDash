@@ -9,66 +9,8 @@ import FileList from './FileList';
 import MainSidebarContent from './MainSidebarContent';
 import MainSidebarHeader from './MainSidebarHeader';
 import reducer from './store';
-import { getFiles } from './store/filesSlice';
+import { getDataSources } from './store/dataSourcesSlice';
 import DataLibraryHeader from './DataLibraryHeader';
-
-const dataSources = [
-	{
-		type: 'PHP/SQL',
-		name: 'SQL_12345_ZXY',
-		size: 1.2,
-	},
-	{
-		type: 'PHP/SQL',
-		name: 'SQL_54321_ZYX',
-		size: 1.0,
-	},
-	{
-		type: 'MongoDB',
-		name: 'DB_JASPE6',
-		size: 0.7,
-	},
-	{
-		type: 'MongoDB',
-		name: 'DB_JASPE7',
-		size: 0.4,
-	},
-	{
-		type: 'MongoDB',
-		name: 'DB_JASPE8',
-		size: 0.11,
-	},
-	{
-		type: 'MongoDB',
-		name: 'DB_JASPE9',
-		size: 0.2,
-	},
-	{
-		type: 'MySQL',
-		name: 'DB_JASPE3',
-		size: 0.2,
-	},
-	{
-		type: 'MySQL',
-		name: 'DB_JASPE4',
-		size: 1.0,
-	},
-	{
-		type: 'REST API',
-		name: 'REST_12QA',
-		size: 0.12,
-	},
-	{
-		type: 'REST API',
-		name: 'REST_98WD',
-		size: 0.25,
-	},
-	{
-		type: 'Local',
-		name: 'LOCAL_DB_781',
-		size: 0.08,
-	},
-];
 
 const useStyles = makeStyles({
 	header: {
@@ -85,7 +27,7 @@ function DataLibraryApp() {
 	const pageLayout = useRef(null);
 
 	useEffect(() => {
-		dispatch(getFiles());
+		dispatch(getDataSources());
 	}, [dispatch]);
 
 	const classes = useStyles();
@@ -98,7 +40,7 @@ function DataLibraryApp() {
 				sidebarHeader: 'min-h-96 sm:min-h-160',
 				rightSidebar: 'w-320'
 			}}
-			header={<DataLibraryHeader data={dataSources} pageLayout={pageLayout} />}
+			header={<DataLibraryHeader pageLayout={pageLayout} />}
 			content={<FileList pageLayout={pageLayout} />}
 			leftSidebarVariant="temporary"
 			leftSidebarHeader={<MainSidebarHeader />}

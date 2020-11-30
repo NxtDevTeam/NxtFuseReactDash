@@ -11,11 +11,12 @@ import TableRow from '@material-ui/core/TableRow';
 import clsx from 'clsx';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import byteSize from 'byte-size';
 import {
 	setSelectedItem,
 	selectSelectedItemId,
-	selectFiles,
-} from './store/filesSlice';
+	selectDataSources,
+} from './store/dataSourcesSlice';
 
 const useStyles = makeStyles({
 	typeIcon: {
@@ -36,7 +37,7 @@ const useStyles = makeStyles({
 
 function FileList(props) {
 	const dispatch = useDispatch();
-	const files = useSelector(selectFiles);
+	const files = useSelector(selectDataSources);
 	const selectedItemId = useSelector(selectSelectedItemId);
 
 	const classes = useStyles();
@@ -72,7 +73,7 @@ function FileList(props) {
 								<TableCell className="hidden sm:table-cell">{item.type}</TableCell>
 								<TableCell className="hidden sm:table-cell">{item.owner}</TableCell>
 								<TableCell className="text-center hidden sm:table-cell">
-									{item.size === '' ? '-' : item.size}
+									{item.size === '' ? '-' : byteSize(item.size).toString()}
 								</TableCell>
 								<TableCell className="hidden sm:table-cell">{item.modified}</TableCell>
 								<Hidden lgUp>

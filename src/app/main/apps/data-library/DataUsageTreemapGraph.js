@@ -1,15 +1,22 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import FuseLoading from '@fuse/core/FuseLoading';
 import { useTheme } from '@material-ui/core';
 import ReactApexChart from 'react-apexcharts';
+import byteSize from 'byte-size';
 
 function DataUsageTreemapGraph({ data, className }) {
 	const theme = useTheme();
 
 	const chartOptions = useMemo(() => ({
 		chart: {
-			// The animations are pretty clunky and slow since they are JS controlled
 			animations: {
+				// The animations are pretty clunky and slow
 				enabled: false,
+				// These animations (which trigger when the data changes) cause the
+				// chart to crash when data is updated
+				dynamicAnimation: {
+					enabled: false
+				},
 			},
 			// This is just for downloading the data as CSV, etc.
 			toolbar: {
@@ -22,6 +29,9 @@ function DataUsageTreemapGraph({ data, className }) {
 			style: {
 				fontSize: theme.typography.fontSize,
 				fontFamily: theme.typography.fontFamily,
+			},
+			y: {
+				formatter: (size) => byteSize(size).toString(),
 			},
 		},
 		legend: {
@@ -75,15 +85,17 @@ function DataUsageTreemapGraph({ data, className }) {
 	// of the screen. Resizing the page will make it recalculate the width and
 	// end up correct, but I can't find any CSS options that make the chart
 	// properly size itself off the bat.
-	return (
-		<ReactApexChart
-			type="treemap"
-			height="300px"
-			width="600px"
-			options={chartOptions}
-			series={series}
-		/>
-	);
+	// TODO The chart throws an error if the series is empty (a bug in Apexcharts)
+	return series.length > 0
+		?
+			<ReactApexChart
+				type="treemap"
+				height="300px"
+				width="600px"
+				options={chartOptions}
+				series={series}
+			/>
+		: <FuseLoading />
 }
 
 export default DataUsageTreemapGraph;

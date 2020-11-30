@@ -5,11 +5,15 @@ import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import FuseAnimate from '@fuse/core/FuseAnimate';
 import { useSelector } from 'react-redux';
-import { selectSelectedFile } from './store/filesSlice';
+import {
+	selectDataSources,
+	selectSelectedDataSource,
+} from './store/dataSourcesSlice';
 import DataUsageTreemapGraph from './DataUsageTreemapGraph';
 
-function DataLibraryHeader({ data, pageLayout }) {
-	const selectedItem = useSelector(selectSelectedFile);
+function DataLibraryHeader({ pageLayout }) {
+	const dataSources = useSelector(selectDataSources);
+	const selectedItem = useSelector(selectSelectedDataSource);
 
 	return (
 		<div className="flex flex-col flex-1 p-8 sm:p-12 relative">
@@ -28,7 +32,7 @@ function DataLibraryHeader({ data, pageLayout }) {
 					</IconButton>
 				</FuseAnimate> */}
 
-				<DataUsageTreemapGraph data={data} />
+				<DataUsageTreemapGraph data={dataSources} />
 			</div>
 
 			<div className="flex flex-1 items-end">

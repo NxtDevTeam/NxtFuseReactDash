@@ -7,7 +7,8 @@ import Typography from '@material-ui/core/Typography';
 import clsx from 'clsx';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { selectSelectedFile } from './store/filesSlice';
+import byteSize from 'byte-size';
+import { selectSelectedDataSource } from './store/dataSourcesSlice';
 
 const useStyles = makeStyles({
 	table: {
@@ -32,7 +33,7 @@ const useStyles = makeStyles({
 });
 
 function DetailSidebarContent(props) {
-	const selectedItem = useSelector(selectSelectedFile);
+	const selectedItem = useSelector(selectSelectedDataSource);
 
 	const classes = useStyles();
 
@@ -68,7 +69,12 @@ function DetailSidebarContent(props) {
 
 						<tr className="size">
 							<th>Size</th>
-							<td>{selectedItem.size === '' ? '-' : selectedItem.size}</td>
+							<td>
+								{selectedItem.size === ''
+									? '-'
+									: byteSize(selectedItem.size).toString()
+								}
+							</td>
 						</tr>
 
 						<tr className="location">

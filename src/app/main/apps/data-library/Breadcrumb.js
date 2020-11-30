@@ -3,7 +3,9 @@ import Typography from '@material-ui/core/Typography';
 import React from 'react';
 
 function Breadcrumb({ className, selected }) {
-	const arr = selected.location.split('>');
+	// TODO
+	// const arr = selected.location.split('>');
+	const arr = ['Data Sources'];
 
 	return (
 		<Typography className={className}>
