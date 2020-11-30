@@ -1,33 +1,17 @@
 import FuseAnimate from '@fuse/core/FuseAnimate';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Icon from '@material-ui/core/Icon';
 import { makeStyles } from '@material-ui/core/styles';
-import Switch from '@material-ui/core/Switch';
 import Typography from '@material-ui/core/Typography';
 import clsx from 'clsx';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import byteSize from 'byte-size';
 import { selectSelectedDataSource } from './store/dataSourcesSlice';
+import { byteSizeToString, sourceTypeToIcon } from './dataSourceUtils';
 
 const useStyles = makeStyles({
 	table: {
 		'& th': {
 			padding: '16px 0'
-		}
-	},
-	typeIcon: {
-		'&.folder:before': {
-			content: "'folder'",
-			color: '#FFB300'
-		},
-		'&.document:before': {
-			content: "'insert_drive_file'",
-			color: '#1565C0'
-		},
-		'&.spreadsheet:before': {
-			content: "'insert_chart'",
-			color: '#4CAF50'
 		}
 	}
 });
@@ -46,15 +30,11 @@ function DetailSidebarContent(props) {
 			<div className="file-details p-16 sm:p-24">
 				<div className="preview h-128 sm:h-256 file-icon flex items-center justify-center">
 					<FuseAnimate animation="transition.expandIn" delay={300}>
-						<Icon className={clsx(classes.typeIcon, selectedItem.type, 'text-48')} />
+						<Icon className={clsx('text-48')}>
+							{sourceTypeToIcon(selectedItem.type)}
+						</Icon>
 					</FuseAnimate>
 				</div>
-
-				<FormControlLabel
-					className="offline-switch"
-					control={<Switch checked={selectedItem.offline} aria-label="Available Offline" />}
-					label="Available Offline"
-				/>
 
 				<Typography variant="subtitle1" className="py-16">
 					Info
@@ -72,7 +52,7 @@ function DetailSidebarContent(props) {
 							<td>
 								{selectedItem.size === ''
 									? '-'
-									: byteSize(selectedItem.size).toString()
+									: byteSizeToString(selectedItem.size)
 								}
 							</td>
 						</tr>
