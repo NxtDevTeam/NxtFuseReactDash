@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import FuseLoading from '@fuse/core/FuseLoading';
 import { useTheme } from '@material-ui/core';
 import ReactApexChart from 'react-apexcharts';
-import byteSize from 'byte-size';
+import { byteSizeToString } from './dataSourceUtils';
 
-function DataUsageTreemapGraph({ data, className }) {
+function DataUsageTreemapGraph({ data }) {
 	const theme = useTheme();
 
 	const chartOptions = useMemo(() => ({
@@ -31,7 +31,7 @@ function DataUsageTreemapGraph({ data, className }) {
 				fontFamily: theme.typography.fontFamily,
 			},
 			y: {
-				formatter: (size) => byteSize(size).toString(),
+				formatter: byteSizeToString,
 			},
 		},
 		legend: {
@@ -86,6 +86,7 @@ function DataUsageTreemapGraph({ data, className }) {
 	// end up correct, but I can't find any CSS options that make the chart
 	// properly size itself off the bat.
 	// TODO The chart throws an error if the series is empty (a bug in Apexcharts)
+	// See issue: https://github.com/apexcharts/react-apexcharts/issues/187
 	return series.length > 0
 		?
 			<ReactApexChart
