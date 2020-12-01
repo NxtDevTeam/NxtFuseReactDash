@@ -1,78 +1,27 @@
-import { createSlice, createAsyncThunk, createEntityAdapter } from '@reduxjs/toolkit';
-
-const dataSources = [
-	{
-		id: 'SQL_12345_ZXY',
-		type: 'PHP/SQL',
-		name: 'SQL_12345_ZXY',
-		size: 1200_000_000,
-	},
-	{
-		id: 'SQL_54321_ZYX',
-		type: 'PHP/SQL',
-		name: 'SQL_54321_ZYX',
-		size: 1000_000_000,
-	},
-	{
-		id: 'DB_JASPE6',
-		type: 'MongoDB',
-		name: 'DB_JASPE6',
-		size: 700_000_000,
-	},
-	{
-		id: 'DB_JASPE7',
-		type: 'MongoDB',
-		name: 'DB_JASPE7',
-		size: 400_000_000,
-	},
-	{
-		id: 'DB_JASPE8',
-		type: 'MongoDB',
-		name: 'DB_JASPE8',
-		size: 110_000_000,
-	},
-	{
-		id: 'DB_JASPE9',
-		type: 'MongoDB',
-		name: 'DB_JASPE9',
-		size: 200_000_000,
-	},
-	{
-		id: 'DB_JASPE3',
-		type: 'MySQL',
-		name: 'DB_JASPE3',
-		size: 200_000_000,
-	},
-	{
-		id: 'CLD_321',
-		type: 'Cloud',
-		name: 'CLD_321',
-		size: 1000_000_000,
-	},
-	{
-		id: 'REST_12QA',
-		type: 'REST API',
-		name: 'REST_12QA',
-		size: 120_000_000,
-	},
-	{
-		id: 'REST_98WD',
-		type: 'REST API',
-		name: 'REST_98WD',
-		size: 250_000_000,
-	},
-	{
-		id: 'LOCAL_DB_781',
-		type: 'Local',
-		name: 'LOCAL_DB_781',
-		size: 80_000_000,
-	},
-];
+import {
+	createSlice,
+	createAsyncThunk,
+	createEntityAdapter,
+} from '@reduxjs/toolkit';
+import auth0Service from 'app/services/auth0Service';
+import NxtBackendApi from 'app/nxt-api';
+import { selectOwnOrgId } from 'app/auth/store/userSlice';
+import { showMessage } from 'app/store/fuse/messageSlice';
 
 export const getDataSources = createAsyncThunk(
 	'dataLibrary/dataSources/getDataSources',
-	async () => {
-		return dataSources;
+	async (_, { getState, dispatch }) => {
+		const token = await auth0Service.getNxtBackendToken();
+
+		const orgId = selectOwnOrgId(getState());
+
+		const api = new NxtBackendApi(token);
+		try {
+			return await api.getAllDataSources(orgId);
+		} catch (e) {
+			dispatch(showMessage({ message: 'Failed to fetch data sources' }));
+			throw e;
+		}
 	});
 
 const dataSourcesAdapter = createEntityAdapter();
@@ -95,6 +44,7 @@ const dataSourcesSlice = createSlice({
 	name: 'dataLibrary/dataSources',
 	initialState: dataSourcesAdapter.getInitialState({
 		selectedItemId: null,
+		loading: false,
 	}),
 	reducers: {
 		setSelectedItem: (state, action) => {
@@ -102,7 +52,16 @@ const dataSourcesSlice = createSlice({
 		}
 	},
 	extraReducers: {
-		[getDataSources.fulfilled]: dataSourcesAdapter.setAll
+		[getDataSources.pending]: (state) => {
+			state.loading = true;
+		},
+		[getDataSources.fulfilled]: (state, action) => {
+			state.loading = false;
+			dataSourcesAdapter.setAll(state, action.payload);
+		},
+		[getDataSources.rejected]: (state) => {
+			state.loading = false;
+		},
 	}
 });
 
