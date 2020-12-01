@@ -1,4 +1,5 @@
 import React from 'react';
+import { authRoles } from 'app/auth';
 
 const DataLibraryAppConfig = {
 	settings: {
@@ -6,6 +7,7 @@ const DataLibraryAppConfig = {
 			config: {}
 		}
 	},
+	auth: authRoles.user,
 	routes: [
 		{
 			path: '/apps/data-library',
