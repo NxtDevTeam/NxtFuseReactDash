@@ -156,6 +156,39 @@ export default class NxtBackendApi {
 			url: `/organizations/${orgId}/teams/${teamId}/members`,
 		});
 	}
+
+	getAllDataSources(orgId) {
+		return this.makeRequest({ url: `/organizations/${orgId}/data-sources` });
+	}
+
+	getDataSource(orgId, sourceId) {
+		return this.makeRequest({
+			url: `/organizations/${orgId}/data-sources/${sourceId}`,
+		});
+	}
+
+	updateDataSource(orgId, sourceId, data) {
+		return this.makeRequest({
+			method: 'put',
+			url: `/organizations/${orgId}/data-sources/${sourceId}`,
+			data,
+		});
+	}
+
+	createDataSource(orgId, data) {
+		return this.makeRequest({
+			method: 'post',
+			url: `/organizations/${orgId}/data-sources`,
+			data,
+		});
+	}
+
+	deleteDataSource(orgId, sourceId) {
+		return this.makeRequest({
+			method: 'delete',
+			url: `/organizations/${orgId}/data-sources/${sourceId}`,
+		});
+	}
 }
 
 /**
