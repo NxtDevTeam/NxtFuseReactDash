@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import FuseLoading from '@fuse/core/FuseLoading';
-import { useTheme } from '@material-ui/core';
+import { useMediaQuery, useTheme } from '@material-ui/core';
 import ReactApexChart from 'react-apexcharts';
 import { byteSizeToString } from './dataSourceUtils';
 
-function DataUsageTreemapGraph({ data }) {
+function DataUsageTreemapGraph({ className, data }) {
 	const theme = useTheme();
 
 	const chartOptions = useMemo(() => ({
@@ -52,7 +52,22 @@ function DataUsageTreemapGraph({ data }) {
 				fontFamily: theme.typography.fontFamily,
 			},
 		},
+		responsive: [
+			{
+				breakpoint: theme.breakpoints.width('sm'),
+				options: {
+					legend: {
+						position: 'bottom',
+					}
+				}
+			}
+		],
 	}), [theme]);
+
+	// Change to fixed width at XL, when this is put in line with the rest of the
+	// header
+	const sizeXl = useMediaQuery(theme.breakpoints.up('xl'));
+	const width = sizeXl ? '600px' : '100%';
 
 	// Translate the data format into what Apexcharts wants
 	// - Collect sources of the same type into seperate series
@@ -87,16 +102,21 @@ function DataUsageTreemapGraph({ data }) {
 	// properly size itself off the bat.
 	// TODO The chart throws an error if the series is empty (a bug in Apexcharts)
 	// See issue: https://github.com/apexcharts/react-apexcharts/issues/187
-	return series.length > 0
-		?
-			<ReactApexChart
-				type="treemap"
-				height="300px"
-				width="600px"
-				options={chartOptions}
-				series={series}
-			/>
-		: <FuseLoading />
+	return (
+		<div className={className}>
+			{series.length > 0
+				?
+				<ReactApexChart
+					type="treemap"
+					height="300px"
+					width={width}
+					options={chartOptions}
+					series={series}
+				/>
+				: <FuseLoading />
+			}
+		</div>
+	);
 }
 
 export default DataUsageTreemapGraph;

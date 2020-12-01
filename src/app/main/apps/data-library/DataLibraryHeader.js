@@ -4,12 +4,14 @@ import Fab from '@material-ui/core/Fab';
 import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
 import FuseAnimate from '@fuse/core/FuseAnimate';
+import clsx from 'clsx';
 import { useSelector } from 'react-redux';
 import {
 	selectDataSources,
 	selectSelectedDataSource,
 } from './store/dataSourcesSlice';
 import DataUsageTreemapGraph from './DataUsageTreemapGraph';
+import DataSourceGrid from './DataSourceGrid';
 
 function DataLibraryHeader({ pageLayout }) {
 	const dataSources = useSelector(selectDataSources);
@@ -17,8 +19,14 @@ function DataLibraryHeader({ pageLayout }) {
 
 	return (
 		<div className="flex flex-col flex-1 p-8 sm:p-12 relative">
-			<div className="flex items-start justify-between">
+			<div
+				className={clsx(
+					"flex flex-col items-stretch justify-between",
+					"xl:flex-row xl:items-start",
+				)}
+			>
 				<IconButton
+					className="self-start"
 					onClick={ev => {
 						pageLayout.current.toggleLeftSidebar();
 					}}
@@ -26,13 +34,14 @@ function DataLibraryHeader({ pageLayout }) {
 				>
 					<Icon>menu</Icon>
 				</IconButton>
-				{/* <FuseAnimate animation="transition.expandIn" delay={200}>
-					<IconButton aria-label="search">
-						<Icon>search</Icon>
-					</IconButton>
-				</FuseAnimate> */}
 
-				<DataUsageTreemapGraph data={dataSources} />
+				<FuseAnimate animation="transition.slideLeftIn" delay={300}>
+					<DataSourceGrid className="p-8" dataSources={dataSources} />
+				</FuseAnimate>
+
+				<FuseAnimate animation="transition.expandIn" delay={300}>
+					<DataUsageTreemapGraph className="px-8" data={dataSources} />
+				</FuseAnimate>
 			</div>
 
 			<div className="flex flex-1 items-end">
