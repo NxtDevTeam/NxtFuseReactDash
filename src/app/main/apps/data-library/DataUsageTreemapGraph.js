@@ -7,10 +7,60 @@ import { byteSizeToString } from './dataSourceUtils';
 function DataUsageTreemapGraph({ className, data }) {
 	const theme = useTheme();
 
+	// Chart legend is put below when XS, but to the right when SM and up
+	const sizeSm = useMediaQuery(theme.breakpoints.up('sm'));
+
 	// Change to fixed width at XL, when this is put in line with the rest of the
 	// header
 	const sizeXl = useMediaQuery(theme.breakpoints.up('xl'));
 	const width = sizeXl ? '600px' : '100%';
+
+	const chartOptions = useMemo(() => ({
+		chart: {
+			animations: {
+				// Speed up the animations a bit
+				speed: 400,
+			},
+			// This is just for downloading the data as CSV, etc.
+			toolbar: {
+				show: false,
+			},
+		},
+		tooltip: {
+			theme: 'dark',
+			followCursor: true,
+			style: {
+				fontSize: theme.typography.fontSize,
+				fontFamily: theme.typography.fontFamily,
+			},
+			y: {
+				formatter: byteSizeToString,
+			},
+		},
+		legend: {
+			show: true,
+			// NOTE: This is used instead of the `responsive` chart option to update
+			// the legend position because due to some bug in Apexcharts, using the
+			// `responsive` options causes the chart to break when updating the data
+			position: sizeSm ? 'right' : 'bottom',
+			fontSize: theme.typography.fontSize,
+			fontWeight: theme.typography.fontWeightBold,
+			fontFamily: theme.typography.fontFamily,
+			labels: {
+				colors: theme.palette.text,
+			},
+		},
+		// TODO The chart throws an error if the series is empty
+		// See https://github.com/apexcharts/apexcharts.js/issues/2090
+		noData: {
+			text: 'No data sources',
+			style: {
+				color: theme.palette.text,
+				fontSize: theme.typography.fontSize,
+				fontFamily: theme.typography.fontFamily,
+			},
+		},
+	}), [theme, sizeSm]);
 
 	// Translate the data format into what Apexcharts wants
 	// - Collect sources of the same type into seperate series
@@ -38,76 +88,12 @@ function DataUsageTreemapGraph({ className, data }) {
 			(a, b) => a.name.localeCompare(b.name));
 	}, [data]);
 
-	const chartOptions = useMemo(() => ({
-		chart: {
-			animations: {
-				// The animations are pretty clunky and slow
-				enabled: false,
-				// These animations (which trigger when the data changes) cause the
-				// chart to crash when data is updated
-				dynamicAnimation: {
-					enabled: false
-				},
-			},
-			// This is just for downloading the data as CSV, etc.
-			toolbar: {
-				show: false,
-			},
-		},
-		tooltip: {
-			theme: 'dark',
-			followCursor: true,
-			style: {
-				fontSize: theme.typography.fontSize,
-				fontFamily: theme.typography.fontFamily,
-			},
-			y: {
-				formatter: byteSizeToString,
-			},
-		},
-		legend: {
-			show: true,
-			position: 'right',
-			fontSize: theme.typography.fontSize,
-			fontWeight: theme.typography.fontWeightBold,
-			fontFamily: theme.typography.fontFamily,
-			labels: {
-				colors: theme.palette.text,
-			},
-		},
-		noData: {
-			text: 'No data sources',
-			style: {
-				color: theme.palette.text,
-				fontSize: theme.typography.fontSize,
-				fontFamily: theme.typography.fontFamily,
-			},
-		},
-		responsive: [
-			{
-				breakpoint: theme.breakpoints.width('sm'),
-				options: {
-					legend: {
-						position: 'bottom',
-					}
-				}
-			}
-		],
-		// TODO Remove this when possible.
-		// This shouldn't be necessary, but due to some bug in either apexcharts or
-		// react-apexcharts, the chart will not update properly when the series
-		// updates. In particular, the tooltips when hovering over boxes are broken
-		// and crash the app
-		series,
-	}), [theme, series]);
-
 	// TODO Figure out how to properly make this 100% width. Setting width=100%
 	// Works except for the first render, where it seems to take up the full width
 	// of the screen. Resizing the page will make it recalculate the width and
 	// end up correct, but I can't find any CSS options that make the chart
 	// properly size itself off the bat.
 	// See issue: https://github.com/apexcharts/react-apexcharts/issues/187
-	// TODO The chart throws an error if the series is empty (a bug in Apexcharts)
 	return (
 		<div className={className}>
 			{series.length > 0
