@@ -7,10 +7,103 @@ export function byteSizeToString(bytes) {
 	return byteSize(bytes).toString();
 }
 
-const sourceTypeIcons = {
-	'REST API': 'public',
-	'Cloud': 'cloud',
-	'Local': 'insert_drive_file',
+export const dataSourceTypes = {
+	'php-sql': {
+		name: 'PHP/SQL',
+		icon: 'storage',
+		options: [
+			{
+				name: 'url',
+				text: 'URL',
+				required: true,
+			},
+			{
+				name: 'query',
+				text: 'Query',
+				required: true,
+			}
+		],
+	},
+	'mysql': {
+		name: 'MySQL',
+		icon: 'storage',
+		options: [
+			{
+				name: 'url',
+				text: 'URL',
+				required: true,
+			},
+			{
+				name: 'query',
+				text: 'Query',
+				required: true,
+			},
+		],
+	},
+	'mongodb': {
+		name: 'MongoDB',
+		icon: 'storage',
+		options: [
+			{
+				name: 'url',
+				text: 'URL',
+				required: true,
+			},
+			{
+				name: 'collection',
+				text: 'Collection',
+				required: true,
+			},
+			{
+				name: 'query',
+				text: 'Query',
+				required: true,
+			},
+		],
+	},
+	'rest': {
+		name: 'REST API',
+		icon: 'public',
+		options: [
+			{
+				name: 'url',
+				text: 'URL Endpoint',
+				required: true,
+			},
+		],
+	},
+	'cloud': {
+		name: 'Cloud',
+		icon: 'cloud',
+		options: [
+			{
+				name: 'url',
+				text: 'URL',
+				required: true,
+			},
+			{
+				name: 'service',
+				text: 'Service',
+				required: true,
+			},
+		],
+	},
+	'local': {
+		name: 'Local',
+		icon: 'insert_drive_file',
+		options: [
+			{
+				name: 'file',
+				text: 'File Name',
+				required: true,
+			},
+		],
+	},
+};
+
+const unknownDataSource = {
+	name: 'Unknown',
+	icon: 'error',
 };
 
 /**
@@ -18,10 +111,10 @@ const sourceTypeIcons = {
  *
  * Uses `'storage'` as a catch-all for unknown/unspecialized types.
  */
-export function sourceTypeToIcon(type) {
-	if (type in sourceTypeIcons) {
-		return sourceTypeIcons[type];
-	} else {
-		return 'storage';
-	}
+export function getSourceTypeData(type) {
+	return dataSourceTypes[type] ?? unknownDataSource;
+}
+
+export function getRandomDataSourceSize() {
+	return 5_000_000_000 / (Math.random() * 100 + 1);
 }

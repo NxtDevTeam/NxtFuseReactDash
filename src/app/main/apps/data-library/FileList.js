@@ -14,7 +14,7 @@ import {
 	selectSelectedItemId,
 	selectDataSources,
 } from './store/dataSourcesSlice';
-import { byteSizeToString, sourceTypeToIcon } from './dataSourceUtils';
+import { byteSizeToString, getSourceTypeData } from './dataSourceUtils';
 
 function FileList(props) {
 	const dispatch = useDispatch();
@@ -37,6 +37,8 @@ function FileList(props) {
 
 				<TableBody>
 					{files.map(item => {
+						const { name: typeName, icon } = getSourceTypeData(item.type);
+
 						return (
 							<TableRow
 								key={item.id}
@@ -46,10 +48,10 @@ function FileList(props) {
 								className="cursor-pointer"
 							>
 								<TableCell className="max-w-64 w-64 p-0 text-center">
-									<Icon>{sourceTypeToIcon(item.type)}</Icon>
+									<Icon>{icon}</Icon>
 								</TableCell>
 								<TableCell>{item.name}</TableCell>
-								<TableCell className="hidden sm:table-cell">{item.type}</TableCell>
+								<TableCell className="hidden sm:table-cell">{typeName}</TableCell>
 								<TableCell className="hidden sm:table-cell">{item.owner}</TableCell>
 								<TableCell className="text-center hidden sm:table-cell">
 									{item.size === '' ? '-' : byteSizeToString(item.size)}

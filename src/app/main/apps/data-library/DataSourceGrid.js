@@ -1,13 +1,15 @@
 import React from 'react';
 import { Card, CardContent, Grid, Icon, Typography } from '@material-ui/core';
-import { sourceTypeToIcon } from './dataSourceUtils';
+import { getSourceTypeData } from './dataSourceUtils';
 
 function DataSourceCard({ type, name }) {
+	const { name: typeName, icon } = getSourceTypeData(type);
+
 	return (
 		<Card>
 			<CardContent className="flex flex-col items-center">
-				<Typography>{type}</Typography>
-				<Icon className="text-48">{sourceTypeToIcon(type)}</Icon>
+				<Typography>{typeName}</Typography>
+				<Icon className="text-48">{icon}</Icon>
 				<Typography variant="caption">{name}</Typography>
 			</CardContent>
 		</Card>

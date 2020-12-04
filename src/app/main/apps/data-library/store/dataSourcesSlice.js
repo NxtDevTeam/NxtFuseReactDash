@@ -24,6 +24,22 @@ export const getDataSources = createAsyncThunk(
 		}
 	});
 
+export const createDataSource = createAsyncThunk(
+	'dataLibrary/dataSources/createDataSource',
+	async (dataSource, { getState, dispatch }) => {
+		const token = await auth0Service.getNxtBackendToken();
+
+		const orgId = selectOwnOrgId(getState());
+
+		const api = new NxtBackendApi(token);
+		try {
+			return await api.createDataSource(orgId, dataSource);
+		} catch (e) {
+			dispatch(showMessage({ message: 'Failed to create new data source' }));
+			throw e;
+		}
+	});
+
 const dataSourcesAdapter = createEntityAdapter();
 
 const selectSlice = (state) => state.dataLibrary.dataSources;
@@ -62,6 +78,8 @@ const dataSourcesSlice = createSlice({
 		[getDataSources.rejected]: (state) => {
 			state.loading = false;
 		},
+
+		[createDataSource.fulfilled]: dataSourcesAdapter.addOne,
 	}
 });
 

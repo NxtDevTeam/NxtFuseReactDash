@@ -8750,6 +8750,11 @@ material-table@1.68.0:
     react-beautiful-dnd "^13.0.0"
     react-double-scrollbar "0.0.15"
 
+material-ui-color@^0.4.6:
+  version "0.4.6"
+  resolved "https://registry.yarnpkg.com/material-ui-color/-/material-ui-color-0.4.6.tgz#f266cc0b83d145046797c334777d771ed9c2f272"
+  integrity sha512-EomZgtOKuGbIpEuCOq0+qCFU6phtlX6sAvjbqoCyBesmNHHKkahdlyoHTMKsy5Wdsqjr9lq0GJ/pz3pGnC3euA==
+
 material-ui-popup-state@1.6.1:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/material-ui-popup-state/-/material-ui-popup-state-1.6.1.tgz#fc1a93c9111ee20370488aef9c6f2b2da5707604"
@@ -13553,6 +13558,11 @@ v8flags@^3.1.1:
   integrity sha512-mH8etigqMfiGWdeXpaaqGfs6BndypxusHHcv2qSHyZkGEznCd/qAXCWWRzeowtL54147cktFOC4P5y+kl8d8Jg==
   dependencies:
     homedir-polyfill "^1.0.1"
+
+validate-color@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/validate-color/-/validate-color-2.1.0.tgz#ba32664db859a197c19520b50316b8b8d5ffa0bc"
+  integrity sha512-/78x9MDsanOisNfa4UxombQkPCE2A/hmFUtgunwGutpAgTRnhKvOhzJ4KeSDunbKEla6T+u0OlHd1hWCLVhSdA==
 
 validate-npm-package-license@^3.0.1:
   version "3.0.4"

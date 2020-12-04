@@ -1,8 +1,8 @@
 import React from 'react';
 import Breadcrumb from './Breadcrumb';
 import Fab from '@material-ui/core/Fab';
-import Icon from '@material-ui/core/Icon';
 import IconButton from '@material-ui/core/IconButton';
+import Icon from '@material-ui/core/Icon';
 import FuseAnimate from '@fuse/core/FuseAnimate';
 import clsx from 'clsx';
 import { useSelector } from 'react-redux';
@@ -13,7 +13,7 @@ import {
 import DataUsageTreemapGraph from './DataUsageTreemapGraph';
 import DataSourceGrid from './DataSourceGrid';
 
-function DataLibraryHeader({ pageLayout }) {
+function DataLibraryHeader({ pageLayout, onAddDataSource }) {
 	const dataSources = useSelector(selectDataSources);
 	const selectedItem = useSelector(selectSelectedDataSource);
 
@@ -50,6 +50,7 @@ function DataLibraryHeader({ pageLayout }) {
 						color="secondary"
 						aria-label="add"
 						className="absolute bottom-0 ltr:left-0 rtl:right-0 mx-16 -mb-28 z-999"
+						onClick={onAddDataSource}
 					>
 						<Icon>add</Icon>
 					</Fab>

@@ -7,6 +7,37 @@ import { byteSizeToString } from './dataSourceUtils';
 function DataUsageTreemapGraph({ className, data }) {
 	const theme = useTheme();
 
+	// Change to fixed width at XL, when this is put in line with the rest of the
+	// header
+	const sizeXl = useMediaQuery(theme.breakpoints.up('xl'));
+	const width = sizeXl ? '600px' : '100%';
+
+	// Translate the data format into what Apexcharts wants
+	// - Collect sources of the same type into seperate series
+	// - Rename fields (`name -> x`, `size -> y`)
+	const series = useMemo(() => {
+		// Set of series keyed by the name
+		let seriesMap = {};
+		for (let elem of data) {
+			if (!(elem.type in seriesMap)) {
+				seriesMap[elem.type] = {
+					name: elem.type,
+					data: [],
+				};
+			}
+
+			seriesMap[elem.type].data.push({
+				x: elem.name,
+				y: elem.size,
+			});
+		}
+
+		// Collect into an array, sorted by the name in order to maintain a
+		// consistent ordering
+		return Object.values(seriesMap).sort(
+			(a, b) => a.name.localeCompare(b.name));
+	}, [data]);
+
 	const chartOptions = useMemo(() => ({
 		chart: {
 			animations: {
@@ -62,46 +93,21 @@ function DataUsageTreemapGraph({ className, data }) {
 				}
 			}
 		],
-	}), [theme]);
-
-	// Change to fixed width at XL, when this is put in line with the rest of the
-	// header
-	const sizeXl = useMediaQuery(theme.breakpoints.up('xl'));
-	const width = sizeXl ? '600px' : '100%';
-
-	// Translate the data format into what Apexcharts wants
-	// - Collect sources of the same type into seperate series
-	// - Rename fields (`name -> x`, `size -> y`)
-	const series = useMemo(() => {
-		// Set of series keyed by the name
-		let seriesMap = {};
-		for (let elem of data) {
-			if (!(elem.type in seriesMap)) {
-				seriesMap[elem.type] = {
-					name: elem.type,
-					data: [],
-				};
-			}
-
-			seriesMap[elem.type].data.push({
-				x: elem.name,
-				y: elem.size,
-			});
-		}
-
-		// Collect into an array, sorted by the name in order to maintain a
-		// consistent ordering
-		return Object.values(seriesMap).sort(
-			(a, b) => a.name.localeCompare(b.name));
-	}, [data]);
+		// TODO Remove this when possible.
+		// This shouldn't be necessary, but due to some bug in either apexcharts or
+		// react-apexcharts, the chart will not update properly when the series
+		// updates. In particular, the tooltips when hovering over boxes are broken
+		// and crash the app
+		series,
+	}), [theme, series]);
 
 	// TODO Figure out how to properly make this 100% width. Setting width=100%
 	// Works except for the first render, where it seems to take up the full width
 	// of the screen. Resizing the page will make it recalculate the width and
 	// end up correct, but I can't find any CSS options that make the chart
 	// properly size itself off the bat.
-	// TODO The chart throws an error if the series is empty (a bug in Apexcharts)
 	// See issue: https://github.com/apexcharts/react-apexcharts/issues/187
+	// TODO The chart throws an error if the series is empty (a bug in Apexcharts)
 	return (
 		<div className={className}>
 			{series.length > 0

@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { selectSelectedDataSource } from './store/dataSourcesSlice';
-import { byteSizeToString, sourceTypeToIcon } from './dataSourceUtils';
+import { byteSizeToString, getSourceTypeData } from './dataSourceUtils';
 
 const useStyles = makeStyles({
 	table: {
@@ -25,14 +25,14 @@ function DetailSidebarContent(props) {
 		return null;
 	}
 
+	const { name: typeName, icon } = getSourceTypeData(selectedItem.type);
+
 	return (
 		<FuseAnimate animation="transition.slideUpIn" delay={200}>
 			<div className="file-details p-16 sm:p-24">
 				<div className="preview h-128 sm:h-256 file-icon flex items-center justify-center">
 					<FuseAnimate animation="transition.expandIn" delay={300}>
-						<Icon className={clsx('text-48')}>
-							{sourceTypeToIcon(selectedItem.type)}
-						</Icon>
+						<Icon className={clsx('text-48')}>{icon}</Icon>
 					</FuseAnimate>
 				</div>
 
@@ -44,7 +44,7 @@ function DetailSidebarContent(props) {
 					<tbody>
 						<tr className="type">
 							<th>Type</th>
-							<td>{selectedItem.type}</td>
+							<td>{typeName}</td>
 						</tr>
 
 						<tr className="size">
