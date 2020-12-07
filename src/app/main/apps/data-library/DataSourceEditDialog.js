@@ -1,5 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	Button,
 	Dialog,
@@ -12,7 +11,6 @@ import {
 	makeStyles,
 	Typography,
 } from '@material-ui/core';
-import { createDataSource } from './store/dataSourcesSlice';
 import { dataSourceTypes, getRandomDataSourceSize, getSourceTypeData } from './dataSourceUtils';
 import Formsy from 'formsy-react';
 import { SelectFormsy, TextFieldFormsy } from '@fuse/core/formsy';
@@ -25,8 +23,10 @@ const useStyles = makeStyles({
 	},
 });
 
-function DataSourceSpecificOptionsForm({ options }) {
+function DataSourceSpecificOptionsForm({ options, initialValue }) {
 	const classes = useStyles();
+
+	initialValue = initialValue ?? {};
 
 	return (
 		<div className="flex flex-col flex-1">
@@ -39,6 +39,7 @@ function DataSourceSpecificOptionsForm({ options }) {
 						required={required}
 						name={`options.${name}`}
 						label={text}
+						value={initialValue[name]}
 					/>
 				))
 				: <Typography>
@@ -49,9 +50,12 @@ function DataSourceSpecificOptionsForm({ options }) {
 	);
 }
 
-function NewDataSourceDialog({ open, onClose }) {
-	const dispatch = useDispatch();
-
+function DataSourceEditDialog({
+	open,
+	onClose,
+	initialValue,
+	onSave,
+}) {
 	const [submitEnabled, setSubmitEnabled] = useState(false);
 
 	const enableSubmit = useCallback(
@@ -62,8 +66,29 @@ function NewDataSourceDialog({ open, onClose }) {
 		() => setSubmitEnabled(false),
 		[setSubmitEnabled]);
 
-	const [sourceTypeData, setSourceTypeData] = useState(getSourceTypeData(null));
+
+	// Set the title based on whether initial values are passed
+	const isCreateDialog = !initialValue;
+	const title = isCreateDialog ? 'New Data Sourcce' : 'Edit Data Source';
+	const submitButtonLabel = isCreateDialog ? 'Create' : 'Save';
+	initialValue = initialValue ?? {
+		type: '',
+		name: '',
+		color: null,
+		options: {},
+	};
+
+	const [sourceTypeData, setSourceTypeData] = useState(getSourceTypeData(
+		initialValue.type
+	));
 	const { icon: typeIcon, options } = sourceTypeData;
+
+	// Update the type metadata when the initial values change (i.e. when a new
+	// dialog is opened) and when the form is updated.
+	const initialType = initialValue.type;
+	useEffect(() => {
+		setSourceTypeData(getSourceTypeData(initialType));
+	}, [initialType]);
 
 	const handleFormChange = useCallback((values) => {
 		setSourceTypeData(getSourceTypeData(values.type));
@@ -76,18 +101,18 @@ function NewDataSourceDialog({ open, onClose }) {
 	const handleSubmit = useCallback(() => {
 		// Inject the size field into the request (this is just placeholder data
 		// for now, so the size might as well just be random)
-		dispatch(createDataSource({
+		onSave({
 			...formRef.current.getModel(),
 			size: getRandomDataSourceSize(),
-		}));
+		});
 		onClose();
-	}, [dispatch, onClose]);
+	}, [onSave, onClose]);
 
 	const classes = useStyles();
 
 	return (
 		<Dialog fullWidth open={open} onClose={onClose}>
-			<DialogTitle>New Data Source</DialogTitle>
+			<DialogTitle>{title}</DialogTitle>
 
 			<DialogContent>
 				<Formsy
@@ -106,7 +131,7 @@ function NewDataSourceDialog({ open, onClose }) {
 							required
 							label="Data Source Type"
 							name="type"
-							value=""
+							value={initialValue.type}
 						>
 							<MenuItem value=""></MenuItem>
 
@@ -126,6 +151,7 @@ function NewDataSourceDialog({ open, onClose }) {
 							required
 							name="name"
 							label="Name"
+							value={initialValue.name}
 						/>
 
 						<ColorPickerFormsy
@@ -133,6 +159,7 @@ function NewDataSourceDialog({ open, onClose }) {
 							className={classes.formInput}
 							name="color"
 							label="Color"
+							value={initialValue.color}
 							ColorPickerProps={{
 								disableAlpha: true,
 							}}
@@ -143,7 +170,10 @@ function NewDataSourceDialog({ open, onClose }) {
 
 					<Divider className="mx-16" orientation="vertical" flexItem />
 
-					<DataSourceSpecificOptionsForm options={options} />
+					<DataSourceSpecificOptionsForm
+						options={options}
+						initialValue={initialValue.options}
+					/>
 				</Formsy>
 			</DialogContent>
 
@@ -158,11 +188,11 @@ function NewDataSourceDialog({ open, onClose }) {
 					disabled={!submitEnabled}
 					onClick={handleSubmit}
 				>
-					Create
+					{submitButtonLabel}
 				</Button>
 			</DialogActions>
 		</Dialog>
 	);
 }
 
-export default NewDataSourceDialog;
+export default DataSourceEditDialog;

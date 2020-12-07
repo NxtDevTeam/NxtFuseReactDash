@@ -40,6 +40,39 @@ export const createDataSource = createAsyncThunk(
 		}
 	});
 
+export const updateDataSource = createAsyncThunk(
+	'dataLibrary/dataSources/updateDataSource',
+	async ({ id, data }, { getState, dispatch }) => {
+		const token = await auth0Service.getNxtBackendToken();
+
+		const orgId = selectOwnOrgId(getState());
+
+		const api = new NxtBackendApi(token);
+		try {
+			return await api.updateDataSource(orgId, id, data);
+		} catch (e) {
+			dispatch(showMessage({ message: 'Failed to update data source' }));
+			throw e;
+		}
+	});
+
+export const deleteDataSource = createAsyncThunk(
+	'dataLibrary/dataSources/deleteDataSource',
+	async (id, { getState, dispatch }) => {
+		const token = await auth0Service.getNxtBackendToken();
+
+		const orgId = selectOwnOrgId(getState());
+
+		const api = new NxtBackendApi(token);
+		try {
+			await api.deleteDataSource(orgId, id);
+			return id;
+		} catch (e) {
+			dispatch(showMessage({ message: 'Failed to delete data source' }));
+			throw e;
+		}
+	});
+
 const dataSourcesAdapter = createEntityAdapter();
 
 const selectSlice = (state) => state.dataLibrary.dataSources;
@@ -56,16 +89,39 @@ export const selectSelectedItemId =
 export const selectSelectedDataSource =
 	(state) => selectDataSourceById(state, selectSelectedItemId(state));
 
+export const selectDialogState = (state) => selectSlice(state).dialog;
+
 const dataSourcesSlice = createSlice({
 	name: 'dataLibrary/dataSources',
 	initialState: dataSourcesAdapter.getInitialState({
 		selectedItemId: null,
 		loading: false,
+		dialog: {
+			open: false,
+			initialValue: null,
+		},
 	}),
 	reducers: {
 		setSelectedItem: (state, action) => {
 			state.selectedItemId = action.payload;
-		}
+		},
+		openNewSourceDialog: (state) => {
+			state.dialog = {
+				open: true,
+				initialValue: null,
+			};
+		},
+		openEditSourceDialog: (state, action) => {
+			const current =
+				dataSourcesAdapter.getSelectors().selectById(state, action.payload);
+			state.dialog = {
+				open: true,
+				initialValue: current,
+			};
+		},
+		closeDialog: (state) => {
+			state.dialog.open = false;
+		},
 	},
 	extraReducers: {
 		[getDataSources.pending]: (state) => {
@@ -80,9 +136,16 @@ const dataSourcesSlice = createSlice({
 		},
 
 		[createDataSource.fulfilled]: dataSourcesAdapter.addOne,
+		[updateDataSource.fulfilled]: dataSourcesAdapter.upsertOne,
+		[deleteDataSource.fulfilled]: dataSourcesAdapter.removeOne,
 	}
 });
 
-export const { setSelectedItem } = dataSourcesSlice.actions;
+export const {
+	setSelectedItem,
+	openNewSourceDialog,
+	openEditSourceDialog,
+	closeDialog,
+} = dataSourcesSlice.actions;
 
 export default dataSourcesSlice.reducer;

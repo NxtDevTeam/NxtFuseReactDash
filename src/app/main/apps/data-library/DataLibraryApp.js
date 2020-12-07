@@ -1,17 +1,23 @@
+import React, { useCallback, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core';
 import FusePageSimple from '@fuse/core/FusePageSimple';
 import withReducer from 'app/store/withReducer';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import DetailSidebarContent from './DetailSidebarContent';
 import DetailSidebarHeader from './DetailSidebarHeader';
 import FileList from './FileList';
 import MainSidebarContent from './MainSidebarContent';
 import MainSidebarHeader from './MainSidebarHeader';
 import reducer from './store';
-import { getDataSources } from './store/dataSourcesSlice';
+import {
+	closeDialog,
+	createDataSource,
+	getDataSources,
+	selectDialogState,
+	updateDataSource,
+} from './store/dataSourcesSlice';
 import DataLibraryHeader from './DataLibraryHeader';
-import NewDataSourceDialog from './NewDataSourceDialog';
+import DataSourceEditDialog from './DataSourceEditDialog';
 
 const useStyles = makeStyles({
 	header: {
@@ -31,15 +37,25 @@ function DataLibraryApp() {
 		dispatch(getDataSources());
 	}, [dispatch]);
 
-	const [newSourceDialogOpen, setNewSourceDialogOpen] = useState(false);
+	const {
+		open: dialogOpen,
+		initialValue: initialDialogValue,
+	} = useSelector(selectDialogState);
 
-	const openNewSourceDialog = useCallback(
-		() => setNewSourceDialogOpen(true),
-		[setNewSourceDialogOpen]);
+	const handleCloseDialog = useCallback(
+		() => dispatch(closeDialog()),
+		[dispatch]);
 
-	const closeNewSourceDialog = useCallback(
-		() => setNewSourceDialogOpen(false),
-		[setNewSourceDialogOpen]);
+	const handleDialogSave = useCallback((data) => {
+		if (initialDialogValue) {
+			dispatch(updateDataSource({
+				id: initialDialogValue.id,
+				data,
+			}));
+		} else {
+			dispatch(createDataSource(data));
+		}
+	}, [initialDialogValue, dispatch]);
 
 	const classes = useStyles();
 
@@ -53,10 +69,7 @@ function DataLibraryApp() {
 					rightSidebar: 'w-320'
 				}}
 				header={
-					<DataLibraryHeader
-						pageLayout={pageLayout}
-						onAddDataSource={openNewSourceDialog}
-					/>
+					<DataLibraryHeader pageLayout={pageLayout} />
 				}
 				content={<FileList pageLayout={pageLayout} />}
 				leftSidebarVariant="temporary"
@@ -68,9 +81,11 @@ function DataLibraryApp() {
 				innerScroll
 			/>
 
-			<NewDataSourceDialog
-				open={newSourceDialogOpen}
-				onClose={closeNewSourceDialog}
+			<DataSourceEditDialog
+				open={dialogOpen}
+				onClose={handleCloseDialog}
+				initialValue={initialDialogValue}
+				onSave={handleDialogSave}
 			/>
 		</>
 	);

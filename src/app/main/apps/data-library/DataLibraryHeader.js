@@ -5,15 +5,20 @@ import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
 import FuseAnimate from '@fuse/core/FuseAnimate';
 import clsx from 'clsx';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
+	openNewSourceDialog,
 	selectDataSources,
 	selectSelectedDataSource,
 } from './store/dataSourcesSlice';
 import DataUsageTreemapGraph from './DataUsageTreemapGraph';
 import DataSourceGrid from './DataSourceGrid';
 
-function DataLibraryHeader({ pageLayout, onAddDataSource }) {
+function DataLibraryHeader({ pageLayout }) {
+	const dispatch = useDispatch();
+
+	const handleOpenAddDialog = () => dispatch(openNewSourceDialog());
+
 	const dataSources = useSelector(selectDataSources);
 	const selectedItem = useSelector(selectSelectedDataSource);
 
@@ -50,7 +55,7 @@ function DataLibraryHeader({ pageLayout, onAddDataSource }) {
 						color="secondary"
 						aria-label="add"
 						className="absolute bottom-0 ltr:left-0 rtl:right-0 mx-16 -mb-28 z-999"
-						onClick={onAddDataSource}
+						onClick={handleOpenAddDialog}
 					>
 						<Icon>add</Icon>
 					</Fab>

@@ -1,13 +1,37 @@
 import FuseAnimate from '@fuse/core/FuseAnimate';
-import Icon from '@material-ui/core/Icon';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { selectSelectedDataSource } from './store/dataSourcesSlice';
+import {
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	Icon,
+	IconButton,
+	Typography,
+} from '@material-ui/core';
+import React, { useCallback, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteDataSource, openEditSourceDialog, selectSelectedDataSource } from './store/dataSourcesSlice';
 
 function DetailSidebarHeader(props) {
+	const dispatch = useDispatch();
+
 	const selectedItem = useSelector(selectSelectedDataSource);
+	const itemId = selectedItem?.id;
+
+	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+
+	const openDeleteConfirm = () => setDeleteConfirmOpen(true);
+	const closeDeleteConfirm = () => setDeleteConfirmOpen(false);
+
+	const handleDelete = useCallback(() => {
+		dispatch(deleteDataSource(itemId));
+		closeDeleteConfirm();
+	}, [itemId, dispatch]);
+
+	const openEditDialog = () => {
+		dispatch(openEditSourceDialog(itemId));
+	};
 
 	if (!selectedItem) {
 		return null;
@@ -17,18 +41,15 @@ function DetailSidebarHeader(props) {
 		<div className="flex flex-col justify-between h-full p-4 sm:p-12">
 			<div className="toolbar flex align-center justify-end">
 				<FuseAnimate animation="transition.expandIn" delay={200}>
-					<IconButton>
+					<IconButton onClick={openDeleteConfirm}>
 						<Icon>delete</Icon>
 					</IconButton>
 				</FuseAnimate>
 				<FuseAnimate animation="transition.expandIn" delay={200}>
-					<IconButton>
-						<Icon>cloud_download</Icon>
+					<IconButton onClick={openEditDialog}>
+						<Icon>edit</Icon>
 					</IconButton>
 				</FuseAnimate>
-				<IconButton>
-					<Icon>more_vert</Icon>
-				</IconButton>
 			</div>
 
 			<div className="p-12">
@@ -44,6 +65,22 @@ function DetailSidebarHeader(props) {
 					</Typography>
 				</FuseAnimate>
 			</div>
+
+			<Dialog open={deleteConfirmOpen} onClose={closeDeleteConfirm}>
+				<DialogTitle>Delete data source?</DialogTitle>
+				<DialogContent>
+					<Typography>
+						Are you sure you want to delete the data source {selectedItem.name}?
+					</Typography>
+					<Typography>
+						This operation cannot be undone.
+					</Typography>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={closeDeleteConfirm}>Cancel</Button>
+					<Button onClick={handleDelete}>Delete</Button>
+				</DialogActions>
+			</Dialog>
 		</div>
 	);
 }
