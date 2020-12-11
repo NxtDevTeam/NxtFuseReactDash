@@ -13,14 +13,17 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import withReducer from 'app/store/withReducer';
 import GoogleMap from 'google-map-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
-import { useDeepCompareEffect } from '@fuse/hooks';
+import { buildProductImageUrl } from 'app/nxt-api';
 import reducer from '../store';
-import { getOrder } from '../store/orderSlice';
+import { getOrder, selectOrderById } from '../store/ordersSlice';
 import OrderInvoice from './OrderInvoice';
 import OrdersStatus from './OrdersStatus';
+import { selectUser } from 'app/store/usersSlice';
+import { selectProductsMap } from '../store/productsSlice';
+import { selectOrganization } from 'app/store/organization/organizationsSlice';
 
 function Marker(props) {
 	return (
@@ -32,16 +35,17 @@ function Marker(props) {
 
 function Order(props) {
 	const dispatch = useDispatch();
-	const order = useSelector(({ eCommerceApp }) => eCommerceApp.order);
 	const theme = useTheme();
 
-	const routeParams = useParams();
+	const { orderId } = useParams();
+	const order = useSelector((state) => selectOrderById(state, orderId));
+
 	const [tabValue, setTabValue] = useState(0);
 	const [map, setMap] = useState('shipping');
 
-	useDeepCompareEffect(() => {
-		dispatch(getOrder(routeParams));
-	}, [dispatch, routeParams]);
+	useEffect(() => {
+		dispatch(getOrder({ id: orderId }));
+	}, [dispatch, orderId]);
 
 	function handleChangeTab(event, value) {
 		setTabValue(value);
@@ -54,7 +58,7 @@ function Order(props) {
 				header: 'min-h-72 h-72 sm:h-136 sm:min-h-136'
 			}}
 			header={
-				order && (
+				order && order.user && (
 					<div className="flex flex-1 w-full items-center justify-between">
 						<div className="flex flex-1 flex-col items-center sm:items-start">
 							<FuseAnimate animation="transition.slideRightIn" delay={300}>
@@ -75,13 +79,13 @@ function Order(props) {
 							<div className="flex flex-col min-w-0 items-center sm:items-start">
 								<FuseAnimate animation="transition.slideLeftIn" delay={300}>
 									<Typography className="text-16 sm:text-20 truncate">
-										{`Order ${order.reference}`}
+										{`Order ${order.id}`}
 									</Typography>
 								</FuseAnimate>
 
 								<FuseAnimate animation="transition.slideLeftIn" delay={300}>
 									<Typography variant="caption">
-										{`From ${order.customer.firstName} ${order.customer.lastName}`}
+										{`From ${order.user.name}`}
 									</Typography>
 								</FuseAnimate>
 							</div>
@@ -105,7 +109,7 @@ function Order(props) {
 				</Tabs>
 			}
 			content={
-				order && (
+				order && order.user && order.organization && (
 					<div className="p-16 sm:p-24 max-w-2xl w-full">
 						{/* Order Details */}
 						{tabValue === 0 && (
@@ -126,71 +130,40 @@ function Order(props) {
 														<th>Name</th>
 														<th>Email</th>
 														<th>Phone</th>
-														<th>Company</th>
+														<th>Organization</th>
 													</tr>
 												</thead>
 												<tbody>
 													<tr>
 														<td>
 															<div className="flex items-center">
-																<Avatar src={order.customer.avatar} />
+																<Avatar src={order.user.picture} />
 																<Typography className="truncate mx-8">
-																	{`${order.customer.firstName} ${order.customer.lastName}`}
+																	{order.user.name}
 																</Typography>
 															</div>
 														</td>
 														<td>
 															<Typography className="truncate">
-																{order.customer.email}
+																{order.user.email}
 															</Typography>
 														</td>
 														<td>
 															<Typography className="truncate">
-																{order.customer.phone}
+																{order.user.phone}
 															</Typography>
 														</td>
 														<td>
-															<span className="truncate">{order.customer.company}</span>
+															<Typography className="truncate">
+																{order.organization.name}
+															</Typography>
 														</td>
 													</tr>
 												</tbody>
 											</table>
 										</div>
 
-										<Accordion
-											elevation={1}
-											expanded={map === 'shipping'}
-											onChange={() => setMap(map !== 'shipping' ? 'shipping' : false)}
-										>
-											<AccordionSummary expandIcon={<ExpandMoreIcon />}>
-												<Typography className="font-600">Shipping Address</Typography>
-											</AccordionSummary>
-											<AccordionDetails className="flex flex-col md:flex-row">
-												<Typography className="w-full md:max-w-256 mb-16 md:mb-0">
-													{order.customer.shippingAddress.address}
-												</Typography>
-												<div className="w-full h-320">
-													<GoogleMap
-														bootstrapURLKeys={{
-															key: process.env.REACT_APP_MAP_KEY
-														}}
-														defaultZoom={15}
-														defaultCenter={[
-															order.customer.shippingAddress.lat,
-															order.customer.shippingAddress.lng
-														]}
-													>
-														<Marker
-															text={order.customer.shippingAddress.address}
-															lat={order.customer.shippingAddress.lat}
-															lng={order.customer.shippingAddress.lng}
-														/>
-													</GoogleMap>
-												</div>
-											</AccordionDetails>
-										</Accordion>
-
-										<Accordion
+										{/* <Accordion
 											elevation={1}
 											expanded={map === 'invoice'}
 											onChange={() => setMap(map !== 'invoice' ? 'invoice' : false)}
@@ -200,7 +173,7 @@ function Order(props) {
 											</AccordionSummary>
 											<AccordionDetails className="flex flex-col md:flex-row">
 												<Typography className="w-full md:max-w-256 mb-16 md:mb-0">
-													{order.customer.invoiceAddress.address}
+													{order.user.invoiceAddress.address}
 												</Typography>
 												<div className="w-full h-320">
 													<GoogleMap
@@ -209,23 +182,23 @@ function Order(props) {
 														}}
 														defaultZoom={15}
 														defaultCenter={[
-															order.customer.invoiceAddress.lat,
-															order.customer.invoiceAddress.lng
+															order.user.invoiceAddress.lat,
+															order.user.invoiceAddress.lng
 														]}
 													>
 														<Marker
-															text={order.customer.invoiceAddress.address}
-															lat={order.customer.invoiceAddress.lat}
-															lng={order.customer.invoiceAddress.lng}
+															text={order.user.invoiceAddress.address}
+															lat={order.user.invoiceAddress.lat}
+															lng={order.user.invoiceAddress.lng}
 														/>
 													</GoogleMap>
 												</div>
 											</AccordionDetails>
-										</Accordion>
+										</Accordion> */}
 									</div>
 								</div>
 
-								<div className="pb-48">
+								{/* <div className="pb-48">
 									<div className="pb-16 flex items-center">
 										<Icon color="action">access_time</Icon>
 										<Typography className="h2 mx-16" color="textSecondary">
@@ -253,10 +226,10 @@ function Order(props) {
 											</tbody>
 										</table>
 									</div>
-								</div>
+								</div> */}
 
-								<div className="pb-48">
-									<div className="pb-16 flex items-center">
+								{/* <div className="pb-48"> */}
+								{/* <div className="pb-16 flex items-center">
 										<Icon color="action">attach_money</Icon>
 										<Typography className="h2 mx-16" color="textSecondary">
 											Payment
@@ -291,9 +264,9 @@ function Order(props) {
 											</tbody>
 										</table>
 									</div>
-								</div>
+								</div> */}
 
-								<div className="pb-48">
+								{/* <div className="pb-48">
 									<div className="pb-16 flex items-center">
 										<Icon color="action">local_shipping</Icon>
 										<Typography className="h2 mx-12" color="textSecondary">
@@ -335,7 +308,7 @@ function Order(props) {
 											</tbody>
 										</table>
 									</div>
-								</div>
+								</div> */}
 							</div>
 						)}
 						{/* Products */}
@@ -344,7 +317,7 @@ function Order(props) {
 								<table className="simple">
 									<thead>
 										<tr>
-											<th>ID</th>
+											<th>SKU</th>
 											<th>Image</th>
 											<th>Name</th>
 											<th>Price</th>
@@ -352,33 +325,44 @@ function Order(props) {
 										</tr>
 									</thead>
 									<tbody>
-										{order.products.map(product => (
-											<tr key={product.id}>
-												<td className="w-64">{product.id}</td>
-												<td className="w-80">
-													<img className="product-image" src={product.image} alt="product" />
-												</td>
-												<td>
-													<Typography
-														component={Link}
-														to={`/apps/e-commerce/products/${product.id}`}
-														className="truncate"
-														style={{
-															color: 'inherit',
-															textDecoration: 'underline'
-														}}
-													>
-														{product.name}
-													</Typography>
-												</td>
-												<td className="w-64 text-right">
-													<span className="truncate">${product.price}</span>
-												</td>
-												<td className="w-64 text-right">
-													<span className="truncate">{product.quantity}</span>
-												</td>
-											</tr>
-										))}
+										{order.items.map(item => {
+											const product = item.product;
+											const productImageUrl = product && buildProductImageUrl(
+												product.id,
+												product.featured_image,
+											);
+											return product && (
+												<tr key={product.id}>
+													<td className="w-64">{product.sku}</td>
+													<td className="w-80">
+														<img
+															className="product-image"
+															src={productImageUrl}
+															alt="product"
+														/>
+													</td>
+													<td>
+														<Typography
+															component={Link}
+															to={`/apps/e-commerce/products/${product.id}`}
+															className="truncate"
+															style={{
+																color: 'inherit',
+																textDecoration: 'underline'
+															}}
+														>
+															{product.name}
+														</Typography>
+													</td>
+													<td className="w-64 text-right">
+														<span className="truncate">${item.price}</span>
+													</td>
+													<td className="w-64 text-right">
+														<span className="truncate">{item.quantity}</span>
+													</td>
+												</tr>
+											)
+										})}
 									</tbody>
 								</table>
 							</div>

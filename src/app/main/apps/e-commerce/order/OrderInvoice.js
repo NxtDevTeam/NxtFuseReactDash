@@ -50,7 +50,7 @@ const OrderInvoice = props => {
 
 	return (
 		<div className={clsx(classes.root, 'flex-grow flex-shrink-0 p-0')}>
-			{props.order && (
+			{props.order && props.order.user && (
 				<Card className="w-xl mx-auto" elevation={0}>
 					<CardContent className="p-88 print:p-0">
 						<Typography color="textSecondary" className="mb-32">
@@ -69,7 +69,7 @@ const OrderInvoice = props => {
 											</td>
 											<td className="pb-4 px-8">
 												<Typography className="font-light" variant="h6" color="inherit">
-													{props.order.reference}
+													{props.order.id}
 												</Typography>
 											</td>
 										</tr>
@@ -77,19 +77,19 @@ const OrderInvoice = props => {
 								</table>
 
 								<Typography color="textSecondary">
-									{`${props.order.customer.firstName} ${props.order.customer.lastName}`}
+									{props.order.user.name}
 								</Typography>
 
-								{props.order.customer.invoiceAddress.address && (
+								{/* {props.order.user.invoiceAddress.address && (
 									<Typography color="textSecondary">
-										{props.order.customer.invoiceAddress.address}
+										{props.order.user.invoiceAddress.address}
 									</Typography>
+								)} */}
+								{props.order.user.phone && (
+									<Typography color="textSecondary">{props.order.user.phone}</Typography>
 								)}
-								{props.order.customer.phone && (
-									<Typography color="textSecondary">{props.order.customer.phone}</Typography>
-								)}
-								{props.order.customer.email && (
-									<Typography color="textSecondary">{props.order.customer.email}</Typography>
+								{props.order.user.email && (
+									<Typography color="textSecondary">{props.order.user.email}</Typography>
 								)}
 							</div>
 
@@ -120,15 +120,19 @@ const OrderInvoice = props => {
 									</TableRow>
 								</TableHead>
 								<TableBody>
-									{props.order.products.map(product => (
-										<TableRow key={product.id}>
+									{props.order.items.map(item => (
+										<TableRow key={item.id}>
 											<TableCell>
-												<Typography variant="subtitle1">{product.name}</Typography>
+												<Typography variant="subtitle1">
+													{item.product ? item.product.name : ''}
+												</Typography>
 											</TableCell>
-											<TableCell align="right">{formatter.format(product.price)}</TableCell>
-											<TableCell align="right">{product.quantity}</TableCell>
 											<TableCell align="right">
-												{formatter.format(product.price * product.quantity)}
+												{formatter.format(item.price)}
+											</TableCell>
+											<TableCell align="right">{item.quantity}</TableCell>
+											<TableCell align="right">
+												{formatter.format(item.price * item.quantity)}
 											</TableCell>
 										</TableRow>
 									))}
@@ -153,8 +157,7 @@ const OrderInvoice = props => {
 												variant="subtitle1"
 												color="textSecondary"
 											>
-												{formatter.format(props.order.subtotal)}
-											</Typography>
+												{formatter.format(props.order.total)} </Typography>
 										</TableCell>
 									</TableRow>
 									<TableRow>
@@ -173,7 +176,7 @@ const OrderInvoice = props => {
 												variant="subtitle1"
 												color="textSecondary"
 											>
-												{formatter.format(props.order.tax)}
+												{formatter.format(props.order.tax || 0)}
 											</Typography>
 										</TableCell>
 									</TableRow>
@@ -193,7 +196,7 @@ const OrderInvoice = props => {
 												variant="subtitle1"
 												color="textSecondary"
 											>
-												{formatter.format(props.order.discount)}
+												{formatter.format(props.order.discount || 0)}
 											</Typography>
 										</TableCell>
 									</TableRow>

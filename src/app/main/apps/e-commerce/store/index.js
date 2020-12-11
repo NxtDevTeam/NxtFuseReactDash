@@ -1,14 +1,12 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import order from './orderSlice';
 import orders from './ordersSlice';
-import product from './productSlice';
 import products from './productsSlice';
+import categories from './productCategoriesSlice';
 
 const reducer = combineReducers({
 	products,
-	product,
+	categories,
 	orders,
-	order
 });
 
 export default reducer;

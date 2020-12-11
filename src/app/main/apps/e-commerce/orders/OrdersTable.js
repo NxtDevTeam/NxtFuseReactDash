@@ -11,13 +11,20 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import OrdersStatus from '../order/OrdersStatus';
-import { selectOrders, getOrders } from '../store/ordersSlice';
+import { selectUsersMap } from 'app/store/usersSlice';
+import { selectOrganizationsMap }
+	from 'app/store/organization/organizationsSlice';
+import {
+	selectOrders,
+	getOrders,
+	selectSearchText,
+} from '../store/ordersSlice';
 import OrdersTableHead from './OrdersTableHead';
 
 function OrdersTable(props) {
 	const dispatch = useDispatch();
 	const orders = useSelector(selectOrders);
-	const searchText = useSelector(({ eCommerceApp }) => eCommerceApp.orders.searchText);
+	const searchText = useSelector(selectSearchText);
 
 	const [selected, setSelected] = useState([]);
 	const [data, setData] = useState(orders);
@@ -29,7 +36,12 @@ function OrdersTable(props) {
 	});
 
 	useEffect(() => {
-		dispatch(getOrders());
+		dispatch(getOrders({
+			fetchUsers: true,
+			fetchOrganizations: true,
+			// Don't show product information on the table page
+			fetchProducts: false,
+		}));
 	}, [dispatch]);
 
 	useEffect(() => {
@@ -110,18 +122,18 @@ function OrdersTable(props) {
 							[
 								o => {
 									switch (order.id) {
-										case 'id': {
-											return parseInt(o.id, 10);
+										case 'organization': {
+											return o.organization?.name;
 										}
 										case 'customer': {
-											return o.customer.firstName;
+											return o.user?.name;
 										}
-										case 'payment': {
-											return o.payment.method;
-										}
-										case 'status': {
-											return o.status[0].name;
-										}
+										// case 'payment': {
+										// 	return o.payment.method;
+										// }
+										// case 'status': {
+										// 	return o.status[0].name;
+										// }
 										default: {
 											return o[order.id];
 										}
@@ -131,8 +143,8 @@ function OrdersTable(props) {
 							[order.direction]
 						)
 							.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-							.map(n => {
-								const isSelected = selected.indexOf(n.id) !== -1;
+							.map(row => {
+								const isSelected = selected.indexOf(row.id) !== -1;
 								return (
 									<TableRow
 										className="h-64 cursor-pointer"
@@ -140,45 +152,45 @@ function OrdersTable(props) {
 										role="checkbox"
 										aria-checked={isSelected}
 										tabIndex={-1}
-										key={n.id}
+										key={row.id}
 										selected={isSelected}
-										onClick={event => handleClick(n)}
+										onClick={event => handleClick(row)}
 									>
 										<TableCell className="w-40 md:w-64 text-center" padding="none">
 											<Checkbox
 												checked={isSelected}
 												onClick={event => event.stopPropagation()}
-												onChange={event => handleCheck(event, n.id)}
+												onChange={event => handleCheck(event, row.id)}
 											/>
 										</TableCell>
 
 										<TableCell className="p-4 md:p-16" component="th" scope="row">
-											{n.id}
-										</TableCell>
-
-										<TableCell className="p-4 md:p-16" component="th" scope="row">
-											{n.reference}
+											{row.id}
 										</TableCell>
 
 										<TableCell className="p-4 md:p-16 truncate" component="th" scope="row">
-											{`${n.customer.firstName} ${n.customer.lastName}`}
+											{row.organization ? row.organization.name : ''}
+										</TableCell>
+
+										<TableCell className="p-4 md:p-16 truncate" component="th" scope="row">
+											{row.user ? row.user.name : ''}
 										</TableCell>
 
 										<TableCell className="p-4 md:p-16" component="th" scope="row" align="right">
 											<span>$</span>
-											{n.total}
+											{row.total}
 										</TableCell>
 
-										<TableCell className="p-4 md:p-16" component="th" scope="row">
-											{n.payment.method}
-										</TableCell>
+										{/* <TableCell className="p-4 md:p-16" component="th" scope="row">
+											{row.payment.method}
+										</TableCell> */}
+
+										{/* <TableCell className="p-4 md:p-16" component="th" scope="row">
+											<OrdersStatus name={row.status[0].name} />
+										</TableCell> */}
 
 										<TableCell className="p-4 md:p-16" component="th" scope="row">
-											<OrdersStatus name={n.status[0].name} />
-										</TableCell>
-
-										<TableCell className="p-4 md:p-16" component="th" scope="row">
-											{n.date}
+											{row.date}
 										</TableCell>
 									</TableRow>
 								);

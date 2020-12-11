@@ -7,11 +7,11 @@ import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectMainTheme } from 'app/store/fuse/settingsSlice';
-import { setOrdersSearchText } from '../store/ordersSlice';
+import { selectSearchText, setOrdersSearchText } from '../store/ordersSlice';
 
-function OrdersHeader(props) {
+function OrdersHeader() {
 	const dispatch = useDispatch();
-	const searchText = useSelector(({ eCommerceApp }) => eCommerceApp.orders.searchText);
+	const searchText = useSelector(selectSearchText);
 	const mainTheme = useSelector(selectMainTheme);
 
 	return (

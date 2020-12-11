@@ -24,10 +24,10 @@ const rows = [
 		sort: true
 	},
 	{
-		id: 'reference',
+		id: 'organization',
 		align: 'left',
 		disablePadding: false,
-		label: 'Reference',
+		label: 'Organization',
 		sort: true
 	},
 	{
@@ -44,20 +44,20 @@ const rows = [
 		label: 'Total',
 		sort: true
 	},
-	{
-		id: 'payment',
-		align: 'left',
-		disablePadding: false,
-		label: 'Payment',
-		sort: true
-	},
-	{
-		id: 'status',
-		align: 'left',
-		disablePadding: false,
-		label: 'Status',
-		sort: true
-	},
+	// {
+	// 	id: 'payment',
+	// 	align: 'left',
+	// 	disablePadding: false,
+	// 	label: 'Payment',
+	// 	sort: true
+	// },
+	// {
+	// 	id: 'status',
+	// 	align: 'left',
+	// 	disablePadding: false,
+	// 	label: 'Status',
+	// 	sort: true
+	// },
 	{
 		id: 'date',
 		align: 'left',

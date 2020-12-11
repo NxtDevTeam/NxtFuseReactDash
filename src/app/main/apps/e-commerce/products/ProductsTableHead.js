@@ -34,28 +34,21 @@ const rows = [
 		id: 'categories',
 		align: 'left',
 		disablePadding: false,
-		label: 'Category',
+		label: 'Categories',
 		sort: true
 	},
 	{
-		id: 'priceTaxIncl',
+		id: 'price',
 		align: 'right',
 		disablePadding: false,
 		label: 'Price',
 		sort: true
 	},
 	{
-		id: 'quantity',
+		id: 'available',
 		align: 'right',
 		disablePadding: false,
-		label: 'Quantity',
-		sort: true
-	},
-	{
-		id: 'active',
-		align: 'right',
-		disablePadding: false,
-		label: 'Active',
+		label: 'Available',
 		sort: true
 	}
 ];
@@ -114,10 +107,13 @@ function ProductsTableHead(props) {
 								<MenuList>
 									<MenuItem
 										onClick={() => {
+											props.onRemoveSelected();
 											closeSelectedProductsMenu();
 										}}
 									>
-										<ListItemIcon className="min-w-40">
+										<ListItemIcon
+											className="min-w-40"
+										>
 											<Icon>delete</Icon>
 										</ListItemIcon>
 										<ListItemText primary="Remove" />
