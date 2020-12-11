@@ -77,13 +77,6 @@ const navigationConfig = [
 						exact: true
 					},
 					{
-						id: 'e-commerce-product-detail',
-						title: 'Product Detail',
-						type: 'item',
-						url: '/apps/e-commerce/products/1/a-walk-amongst-friends-canvas-print',
-						exact: true
-					},
-					{
 						id: 'e-commerce-new-product',
 						title: 'New Product',
 						type: 'item',
@@ -97,13 +90,6 @@ const navigationConfig = [
 						url: '/apps/e-commerce/orders',
 						exact: true
 					},
-					{
-						id: 'e-commerce-order-detail',
-						title: 'Order Detail',
-						type: 'item',
-						url: '/apps/e-commerce/orders/1',
-						exact: true
-					}
 				]
 			},
 			{

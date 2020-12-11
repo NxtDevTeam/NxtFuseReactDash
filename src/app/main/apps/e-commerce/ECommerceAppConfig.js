@@ -1,13 +1,15 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
+import { authRoles } from 'app/auth';
 
 const ECommerceAppConfig = {
 	settings: {
 		layout: {}
 	},
+	auth: authRoles.globalAdmin,
 	routes: [
 		{
-			path: '/apps/e-commerce/products/:productId/:productHandle?',
+			path: '/apps/e-commerce/products/:productId',
 			component: React.lazy(() => import('./product/Product'))
 		},
 		{

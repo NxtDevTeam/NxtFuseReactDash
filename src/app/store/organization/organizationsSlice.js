@@ -83,6 +83,7 @@ const createSliceSelector =
 
 export const {
 	selectAll: selectOrganizations,
+	selectEntities: selectOrganizationsMap,
 	selectById: selectOrganization,
 } = organizationAdapter.getSelectors(selectOrganizationsSlice);
 

@@ -5,8 +5,10 @@
 import globalAxios from 'axios';
 
 import CalendarApi from './CalendarApi';
+import MarketplaceApi from './MarketplaceApi';
 
 export * from './CalendarApi';
+export * from './MarketplaceApi';
 
 /**
  * NxtAI backend API client.
@@ -32,6 +34,10 @@ export default class NxtBackendApi {
 	get calendar() {
 		// TODO Store this as a field? Lazily evaluate?
 		return new CalendarApi(this);
+	}
+
+	get marketplace() {
+		return new MarketplaceApi(this);
 	}
 
 	/**

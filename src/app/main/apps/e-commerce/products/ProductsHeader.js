@@ -9,11 +9,11 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { selectMainTheme } from 'app/store/fuse/settingsSlice';
-import { setProductsSearchText } from '../store/productsSlice';
+import { selectSearchText, setProductsSearchText } from '../store/productsSlice';
 
-function ProductsHeader(props) {
+function ProductsHeader() {
 	const dispatch = useDispatch();
-	const searchText = useSelector(({ eCommerceApp }) => eCommerceApp.products.searchText);
+	const searchText = useSelector(selectSearchText);
 	const mainTheme = useSelector(selectMainTheme);
 
 	return (

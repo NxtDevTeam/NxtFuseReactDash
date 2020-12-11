@@ -7,17 +7,27 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
-import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { getProducts, selectProducts } from '../store/productsSlice';
+import {
+	getProducts,
+	removeProduct,
+	selectProducts,
+	selectSearchText,
+} from '../store/productsSlice';
+import {
+	getAllProductCategories,
+	selectCategoriesMap,
+} from '../store/productCategoriesSlice';
 import ProductsTableHead from './ProductsTableHead';
+import { buildProductImageUrl } from 'app/nxt-api';
 
 function ProductsTable(props) {
 	const dispatch = useDispatch();
 	const products = useSelector(selectProducts);
-	const searchText = useSelector(({ eCommerceApp }) => eCommerceApp.products.searchText);
+	const productCategories = useSelector(selectCategoriesMap);
+	const searchText = useSelector(selectSearchText);
 
 	const [selected, setSelected] = useState([]);
 	const [data, setData] = useState(products);
@@ -30,6 +40,7 @@ function ProductsTable(props) {
 
 	useEffect(() => {
 		dispatch(getProducts());
+		dispatch(getAllProductCategories());
 	}, [dispatch]);
 
 	useEffect(() => {
@@ -40,6 +51,18 @@ function ProductsTable(props) {
 			setData(products);
 		}
 	}, [products, searchText]);
+
+	function resolveCategories(categories) {
+		if (productCategories) {
+			return categories
+				.map((cat) => productCategories[cat]?.name)
+				// Ignore invalid categories
+				.filter((name) => name)
+				.join(', ');
+		} else {
+			return '';
+		}
+	}
 
 	function handleRequestSort(event, property) {
 		const id = property;
@@ -63,8 +86,14 @@ function ProductsTable(props) {
 		setSelected([]);
 	}
 
+	function handleRemoveProducts() {
+		for (let id of selected) {
+			dispatch(removeProduct(id));
+		}
+	}
+
 	function handleClick(item) {
-		props.history.push(`/apps/e-commerce/products/${item.id}/${item.handle}`);
+		props.history.push(`/apps/e-commerce/products/${item.id}`);
 	}
 
 	function handleCheck(event, id) {
@@ -101,6 +130,7 @@ function ProductsTable(props) {
 						order={order}
 						onSelectAllClick={handleSelectAllClick}
 						onRequestSort={handleRequestSort}
+						onRemoveSelected={handleRemoveProducts}
 						rowCount={data.length}
 					/>
 
@@ -122,8 +152,8 @@ function ProductsTable(props) {
 							[order.direction]
 						)
 							.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-							.map(n => {
-								const isSelected = selected.indexOf(n.id) !== -1;
+							.map(item => {
+								const isSelected = selected.indexOf(item.id) !== -1;
 								return (
 									<TableRow
 										className="h-64 cursor-pointer"
@@ -131,15 +161,15 @@ function ProductsTable(props) {
 										role="checkbox"
 										aria-checked={isSelected}
 										tabIndex={-1}
-										key={n.id}
+										key={item.id}
 										selected={isSelected}
-										onClick={event => handleClick(n)}
+										onClick={event => handleClick(item)}
 									>
 										<TableCell className="w-40 md:w-64 text-center" padding="none">
 											<Checkbox
 												checked={isSelected}
 												onClick={event => event.stopPropagation()}
-												onChange={event => handleCheck(event, n.id)}
+												onChange={event => handleCheck(event, item.id)}
 											/>
 										</TableCell>
 
@@ -149,52 +179,42 @@ function ProductsTable(props) {
 											scope="row"
 											padding="none"
 										>
-											{n.images.length > 0 && n.featuredImageId ? (
+											{item.featured_image ? (
 												<img
 													className="w-full block rounded"
-													src={_.find(n.images, { id: n.featuredImageId }).url}
-													alt={n.name}
+													src={
+														buildProductImageUrl(item.id, item.featured_image)
+													}
+													alt={item.name}
 												/>
 											) : (
-												<img
-													className="w-full block rounded"
-													src="assets/images/ecommerce/product-image-placeholder.png"
-													alt={n.name}
-												/>
-											)}
+													<img
+														className="w-full block rounded"
+														src="assets/images/ecommerce/product-image-placeholder.png"
+														alt={item.name}
+													/>
+												)}
 										</TableCell>
 
 										<TableCell className="p-4 md:p-16" component="th" scope="row">
-											{n.name}
+											{item.name}
 										</TableCell>
 
 										<TableCell className="p-4 md:p-16 truncate" component="th" scope="row">
-											{n.categories.join(', ')}
+											{resolveCategories(item.categories)}
 										</TableCell>
 
 										<TableCell className="p-4 md:p-16" component="th" scope="row" align="right">
 											<span>$</span>
-											{n.priceTaxIncl}
+											{item.price}
 										</TableCell>
 
 										<TableCell className="p-4 md:p-16" component="th" scope="row" align="right">
-											{n.quantity}
-											<i
-												className={clsx(
-													'inline-block w-8 h-8 rounded mx-8',
-													n.quantity <= 5 && 'bg-red',
-													n.quantity > 5 && n.quantity <= 25 && 'bg-orange',
-													n.quantity > 25 && 'bg-green'
-												)}
-											/>
-										</TableCell>
-
-										<TableCell className="p-4 md:p-16" component="th" scope="row" align="right">
-											{n.active ? (
+											{item.available ? (
 												<Icon className="text-green text-20">check_circle</Icon>
 											) : (
-												<Icon className="text-red text-20">remove_circle</Icon>
-											)}
+													<Icon className="text-red text-20">remove_circle</Icon>
+												)}
 										</TableCell>
 									</TableRow>
 								);
