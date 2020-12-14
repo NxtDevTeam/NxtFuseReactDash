@@ -2,9 +2,12 @@ import {
 	createSlice,
 	createAsyncThunk,
 	createEntityAdapter,
+	createSelector,
 } from '@reduxjs/toolkit';
+import _ from '@lodash';
 import auth0Service from 'app/services/auth0Service';
-import NxtBackendApi from 'app/nxt-api';
+import NxtBackendApi, { buildProductImageUrl } from 'app/nxt-api';
+import { selectCategoriesMap } from './productCategoriesSlice';
 
 export const getProducts = createAsyncThunk(
 	'eCommerceApp/products/getProducts',
@@ -90,16 +93,47 @@ const productsAdapter = createEntityAdapter();
 
 const selectSlice = (state) => state.eCommerceApp.products;
 
-export const {
-	selectAll: selectProducts,
-	selectEntities: selectProductsMap,
-	selectById: selectProductById,
-} = productsAdapter.getSelectors(selectSlice);
-
 export const selectSearchText = (state) => selectSlice(state).searchText;
 
 export const selectProductsLoading = (state) => selectSlice(state).loading;
 export const selectProductUpdating = (state) => selectSlice(state).updating;
+
+const populateProduct = (product, categoriesMap) => (product && {
+	...product,
+	categories: product.categories.map((catId) =>
+		categoriesMap[catId] ?? { id: catId }),
+	featured_image_url: product.featured_image
+		&& buildProductImageUrl(product.id, product.featured_image),
+	image_urls: product.images.map((image) =>
+		buildProductImageUrl(product.id, image)),
+});
+
+const {
+	selectAll,
+	selectEntities,
+	selectById,
+} = productsAdapter.getSelectors(selectSlice);
+
+export const selectProducts = createSelector(
+	selectAll,
+	selectCategoriesMap,
+	(products, categoriesMap) =>
+		products.map((product) => populateProduct(product, categoriesMap))
+);
+
+export const selectProductsMap = createSelector(
+	selectEntities,
+	selectCategoriesMap,
+	(productsMap, categoriesMap) => _.mapValues(
+		productsMap,
+		(product) => populateProduct(product, categoriesMap),
+	)
+);
+
+export const selectProductById = (state, productId) => populateProduct(
+	selectById(state, productId),
+	selectCategoriesMap(state),
+);
 
 const productsSlice = createSlice({
 	name: 'eCommerceApp/products',

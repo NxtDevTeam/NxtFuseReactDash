@@ -1,7 +1,7 @@
 import FuseScrollbars from '@fuse/core/FuseScrollbars';
-import FuseUtils from '@fuse/utils';
 import _ from '@lodash';
 import Checkbox from '@material-ui/core/Checkbox';
+import Icon from '@material-ui/core/Icon';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -10,24 +10,23 @@ import TableRow from '@material-ui/core/TableRow';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import OrdersStatus from '../order/OrdersStatus';
-import { selectUsersMap } from 'app/store/usersSlice';
-import { selectOrganizationsMap }
-	from 'app/store/organization/organizationsSlice';
 import {
-	selectOrders,
-	getOrders,
+	getProducts,
+	removeProduct,
+	selectProducts,
 	selectSearchText,
-} from '../store/ordersSlice';
-import OrdersTableHead from './OrdersTableHead';
+} from '../../store/productsSlice';
+import { getAllProductCategories } from '../../store/productCategoriesSlice';
+import ProductsTableHead from './ProductsTableHead';
+import { buildProductImageUrl } from 'app/nxt-api';
 
-function OrdersTable(props) {
+function ProductsTable(props) {
 	const dispatch = useDispatch();
-	const orders = useSelector(selectOrders);
+	const products = useSelector(selectProducts);
 	const searchText = useSelector(selectSearchText);
 
 	const [selected, setSelected] = useState([]);
-	const [data, setData] = useState(orders);
+	const [data, setData] = useState(products);
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
 	const [order, setOrder] = useState({
@@ -36,22 +35,26 @@ function OrdersTable(props) {
 	});
 
 	useEffect(() => {
-		dispatch(getOrders({
-			fetchUsers: true,
-			fetchOrganizations: true,
-			// Don't show product information on the table page
-			fetchProducts: false,
-		}));
+		dispatch(getProducts());
+		dispatch(getAllProductCategories());
 	}, [dispatch]);
 
 	useEffect(() => {
 		if (searchText.length !== 0) {
-			setData(FuseUtils.filterArrayByString(orders, searchText));
+			setData(_.filter(products, item => item.name.toLowerCase().includes(searchText.toLowerCase())));
 			setPage(0);
 		} else {
-			setData(orders);
+			setData(products);
 		}
-	}, [orders, searchText]);
+	}, [products, searchText]);
+
+	function resolveCategories(categories) {
+		return categories
+			.map((cat) => cat?.name)
+			// Ignore invalid categories
+			.filter((name) => name)
+			.join(', ');
+	}
 
 	function handleRequestSort(event, property) {
 		const id = property;
@@ -75,8 +78,14 @@ function OrdersTable(props) {
 		setSelected([]);
 	}
 
+	function handleRemoveProducts() {
+		for (let id of selected) {
+			dispatch(removeProduct(id));
+		}
+	}
+
 	function handleClick(item) {
-		props.history.push(`/apps/e-commerce/orders/${item.id}`);
+		props.history.push(`/apps/e-commerce/products/${item.id}`);
 	}
 
 	function handleCheck(event, id) {
@@ -108,11 +117,12 @@ function OrdersTable(props) {
 		<div className="w-full flex flex-col">
 			<FuseScrollbars className="flex-grow overflow-x-auto">
 				<Table stickyHeader className="min-w-xl" aria-labelledby="tableTitle">
-					<OrdersTableHead
+					<ProductsTableHead
 						numSelected={selected.length}
 						order={order}
 						onSelectAllClick={handleSelectAllClick}
 						onRequestSort={handleRequestSort}
+						onRemoveSelected={handleRemoveProducts}
 						rowCount={data.length}
 					/>
 
@@ -122,18 +132,9 @@ function OrdersTable(props) {
 							[
 								o => {
 									switch (order.id) {
-										case 'organization': {
-											return o.organization?.name;
+										case 'categories': {
+											return o.categories[0];
 										}
-										case 'customer': {
-											return o.user?.name;
-										}
-										// case 'payment': {
-										// 	return o.payment.method;
-										// }
-										// case 'status': {
-										// 	return o.status[0].name;
-										// }
 										default: {
 											return o[order.id];
 										}
@@ -143,8 +144,8 @@ function OrdersTable(props) {
 							[order.direction]
 						)
 							.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-							.map(row => {
-								const isSelected = selected.indexOf(row.id) !== -1;
+							.map(item => {
+								const isSelected = selected.indexOf(item.id) !== -1;
 								return (
 									<TableRow
 										className="h-64 cursor-pointer"
@@ -152,45 +153,60 @@ function OrdersTable(props) {
 										role="checkbox"
 										aria-checked={isSelected}
 										tabIndex={-1}
-										key={row.id}
+										key={item.id}
 										selected={isSelected}
-										onClick={event => handleClick(row)}
+										onClick={event => handleClick(item)}
 									>
 										<TableCell className="w-40 md:w-64 text-center" padding="none">
 											<Checkbox
 												checked={isSelected}
 												onClick={event => event.stopPropagation()}
-												onChange={event => handleCheck(event, row.id)}
+												onChange={event => handleCheck(event, item.id)}
 											/>
 										</TableCell>
 
+										<TableCell
+											className="w-52 px-4 md:px-0"
+											component="th"
+											scope="row"
+											padding="none"
+										>
+											{item.featured_image ? (
+												<img
+													className="w-full block rounded"
+													src={
+														buildProductImageUrl(item.id, item.featured_image)
+													}
+													alt={item.name}
+												/>
+											) : (
+													<img
+														className="w-full block rounded"
+														src="assets/images/ecommerce/product-image-placeholder.png"
+														alt={item.name}
+													/>
+												)}
+										</TableCell>
+
 										<TableCell className="p-4 md:p-16" component="th" scope="row">
-											{row.id}
+											{item.name}
 										</TableCell>
 
 										<TableCell className="p-4 md:p-16 truncate" component="th" scope="row">
-											{row.organization ? row.organization.name : ''}
-										</TableCell>
-
-										<TableCell className="p-4 md:p-16 truncate" component="th" scope="row">
-											{row.user ? row.user.name : ''}
+											{resolveCategories(item.categories)}
 										</TableCell>
 
 										<TableCell className="p-4 md:p-16" component="th" scope="row" align="right">
 											<span>$</span>
-											{row.total}
+											{item.price}
 										</TableCell>
 
-										{/* <TableCell className="p-4 md:p-16" component="th" scope="row">
-											{row.payment.method}
-										</TableCell> */}
-
-										{/* <TableCell className="p-4 md:p-16" component="th" scope="row">
-											<OrdersStatus name={row.status[0].name} />
-										</TableCell> */}
-
-										<TableCell className="p-4 md:p-16" component="th" scope="row">
-											{row.date}
+										<TableCell className="p-4 md:p-16" component="th" scope="row" align="right">
+											{item.available ? (
+												<Icon className="text-green text-20">check_circle</Icon>
+											) : (
+													<Icon className="text-red text-20">remove_circle</Icon>
+												)}
 										</TableCell>
 									</TableRow>
 								);
@@ -218,4 +234,4 @@ function OrdersTable(props) {
 	);
 }
 
-export default withRouter(OrdersTable);
+export default withRouter(ProductsTable);

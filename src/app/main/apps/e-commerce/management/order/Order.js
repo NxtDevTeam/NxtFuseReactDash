@@ -1,30 +1,27 @@
 import FuseAnimate from '@fuse/core/FuseAnimate';
 import FusePageCarded from '@fuse/core/FusePageCarded';
 import Avatar from '@material-ui/core/Avatar';
-import Accordion from '@material-ui/core/Accordion';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
+// import Accordion from '@material-ui/core/Accordion';
+// import AccordionDetails from '@material-ui/core/AccordionDetails';
+// import AccordionSummary from '@material-ui/core/AccordionSummary';
 import Icon from '@material-ui/core/Icon';
 import { useTheme } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
-import Tooltip from '@material-ui/core/Tooltip';
+// import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+// import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import withReducer from 'app/store/withReducer';
-import GoogleMap from 'google-map-react';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { buildProductImageUrl } from 'app/nxt-api';
-import reducer from '../store';
-import { getOrder, selectOrderById } from '../store/ordersSlice';
+import reducer from '../../store';
+import { getOrder, selectOrderById } from '../../store/ordersSlice';
 import OrderInvoice from './OrderInvoice';
-import OrdersStatus from './OrdersStatus';
-import { selectUser } from 'app/store/usersSlice';
-import { selectProductsMap } from '../store/productsSlice';
-import { selectOrganization } from 'app/store/organization/organizationsSlice';
+// import OrdersStatus from './OrdersStatus';
 
+/*
 function Marker(props) {
 	return (
 		<Tooltip title={props.text} placement="top">
@@ -32,6 +29,7 @@ function Marker(props) {
 		</Tooltip>
 	);
 }
+*/
 
 function Order(props) {
 	const dispatch = useDispatch();
@@ -41,7 +39,7 @@ function Order(props) {
 	const order = useSelector((state) => selectOrderById(state, orderId));
 
 	const [tabValue, setTabValue] = useState(0);
-	const [map, setMap] = useState('shipping');
+	// const [map, setMap] = useState('shipping');
 
 	useEffect(() => {
 		dispatch(getOrder({ id: orderId }));

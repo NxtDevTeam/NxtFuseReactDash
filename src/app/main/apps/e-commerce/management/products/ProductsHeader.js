@@ -1,4 +1,5 @@
 import FuseAnimate from '@fuse/core/FuseAnimate';
+import Button from '@material-ui/core/Button';
 import Icon from '@material-ui/core/Icon';
 import Input from '@material-ui/core/Input';
 import Paper from '@material-ui/core/Paper';
@@ -6,10 +7,14 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { selectMainTheme } from 'app/store/fuse/settingsSlice';
-import { selectSearchText, setOrdersSearchText } from '../store/ordersSlice';
+import {
+	selectSearchText,
+	setProductsSearchText,
+} from '../../store/productsSlice';
 
-function OrdersHeader() {
+function ProductsHeader() {
 	const dispatch = useDispatch();
 	const searchText = useSelector(selectSearchText);
 	const mainTheme = useSelector(selectMainTheme);
@@ -20,10 +25,9 @@ function OrdersHeader() {
 				<FuseAnimate animation="transition.expandIn" delay={300}>
 					<Icon className="text-32">shopping_basket</Icon>
 				</FuseAnimate>
-
 				<FuseAnimate animation="transition.slideLeftIn" delay={300}>
 					<Typography className="hidden sm:flex mx-0 sm:mx-12" variant="h6">
-						Orders
+						Products
 					</Typography>
 				</FuseAnimate>
 			</div>
@@ -43,14 +47,26 @@ function OrdersHeader() {
 								inputProps={{
 									'aria-label': 'Search'
 								}}
-								onChange={ev => dispatch(setOrdersSearchText(ev))}
+								onChange={ev => dispatch(setProductsSearchText(ev))}
 							/>
 						</Paper>
 					</FuseAnimate>
 				</ThemeProvider>
 			</div>
+			<FuseAnimate animation="transition.slideRightIn" delay={300}>
+				<Button
+					component={Link}
+					to="/apps/e-commerce/products/new"
+					className="whitespace-no-wrap normal-case"
+					variant="contained"
+					color="secondary"
+				>
+					<span className="hidden sm:flex">Add New Product</span>
+					<span className="flex sm:hidden">New</span>
+				</Button>
+			</FuseAnimate>
 		</div>
 	);
 }
 
-export default OrdersHeader;
+export default ProductsHeader;

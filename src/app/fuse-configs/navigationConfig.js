@@ -93,6 +93,13 @@ const navigationConfig = [
 				]
 			},
 			{
+				id: 'marketplace',
+				title: 'Marketplace',
+				type: 'item',
+				icon: 'shopping_cart',
+				url: '/apps/marketplace',
+			},
+			{
 				id: 'academy',
 				title: 'Academy',
 				translate: 'ACADEMY',

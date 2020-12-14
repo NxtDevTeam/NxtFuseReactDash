@@ -121,7 +121,14 @@ const BASE_URL = process.env.REACT_APP_NXT_API_BASE_URL;
 
 export function buildProductImageUrl(productId, imageId, baseUrl = BASE_URL) {
 	return new URL(
-		`products/${productId}/images/${imageId}`,
+		`/products/${productId}/images/${imageId}`,
+		baseUrl,
+	).toString();
+}
+
+export function buildCategoryImageUrl(categoryId, imageId, baseUrl = BASE_URL) {
+	return new URL(
+		`/product-categories/${categoryId}/images/${imageId}`,
 		baseUrl,
 	).toString();
 }

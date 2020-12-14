@@ -27,13 +27,13 @@ import {
 	selectProductById,
 	selectProductsLoading,
 	selectProductUpdating,
-} from '../store/productsSlice';
+} from '../../store/productsSlice';
 import {
 	getAllProductCategories,
 	selectCategoriesMap,
 	selectCategoriesLoading,
-} from '../store/productCategoriesSlice';
-import reducer from '../store';
+} from '../../store/productCategoriesSlice';
+import reducer from '../../store';
 import ProductImage from './ProductImage';
 import FuseUtils from '@fuse/utils';
 
@@ -81,6 +81,10 @@ function Product(props) {
 		if ((product && !form) || (product && form && product.id !== form.id)) {
 			setForm({
 				...product,
+				categories: product.categories.map(({ id, name }) => ({
+					value: id,
+					label: name,
+				})),
 				imagesToUpload: [],
 			});
 		}
@@ -94,22 +98,9 @@ function Product(props) {
 	// List of { value, label }, sorted by label
 	const productCategoryOptions = useMemo(() => {
 		const options = Object.values(productCategoriesMap)
-			.map((cat) => ({ value: cat.id, label: cat.name }));
+			.map((cat) => ({ value: cat.id, label: cat.name ?? '...' }));
 		return options.sort((a, b) => a.label.localeCompare(b.label));
 	}, [productCategoriesMap]);
-
-	// Selected category options, in the same format
-	const selectedCategoryIds = form?.categories;
-	const selectedCategoryOptions = useMemo(() => {
-		if (selectedCategoryIds) {
-			return selectedCategoryIds.map((id) => ({
-				value: id,
-				label: productCategoriesMap[id]?.name ?? '...',
-			}));
-		} else {
-			return {};
-		}
-	}, [selectedCategoryIds, productCategoriesMap]);
 
 	const featuredImageId = form?.featured_image;
 	const existingImages = product?.images;
@@ -130,12 +121,9 @@ function Product(props) {
 	}
 
 	function handleChipChange(value, name) {
-		setForm(
-			_.set(
-				{ ...form },
-				name,
-				value.map(item => item.value)
-			)
+		setInForm(
+			name,
+			value.map(item => item.value)
 		);
 	}
 
@@ -191,32 +179,36 @@ function Product(props) {
 	function handleSave() {
 		if (newProduct) {
 			dispatch(createProduct({
-				data: _.pick(form, [
-					'sku',
-					'name',
-					'description',
-					'categories',
-					'tags',
-					'price',
-					'sale_price',
-					'available',
-					'featured_image',
-				]),
+				data: {
+					..._.pick(form, [
+						'sku',
+						'name',
+						'description',
+						'tags',
+						'price',
+						'sale_price',
+						'available',
+						'featured_image',
+					]),
+					categories: form.categories.map(({ value }) => value),
+				},
 				imagesToUpload: form.imagesToUpload,
 			}));
 		} else {
 			dispatch(saveProduct({
 				id: productId,
-				data: _.pick(form, [
-					'name',
-					'description',
-					'categories',
-					'tags',
-					'price',
-					'sale_price',
-					'available',
-					'featured_image',
-				]),
+				data: {
+					..._.pick(form, [
+						'name',
+						'description',
+						'tags',
+						'price',
+						'sale_price',
+						'available',
+						'featured_image',
+					]),
+					categories: form.categories.map(({ value }) => value),
+				},
 				imagesToUpload: form.imagesToUpload,
 			}));
 		}
@@ -345,8 +337,8 @@ function Product(props) {
 
 								<FuseChipSelect
 									className="mt-8 mb-24"
-									value={selectedCategoryOptions}
-									onChange={value => handleChipChange(value, 'categories')}
+									value={form.categories}
+									onChange={value => setInForm('categories', value)}
 									placeholder="Select multiple categories"
 									textFieldProps={{
 										label: 'Categories',

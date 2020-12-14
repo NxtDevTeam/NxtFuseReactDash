@@ -2,7 +2,7 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { authRoles } from 'app/auth';
 
-const ECommerceAppConfig = {
+const ECommerceManagementAppConfig = {
 	settings: {
 		layout: {}
 	},
@@ -31,4 +31,4 @@ const ECommerceAppConfig = {
 	]
 };
 
-export default ECommerceAppConfig;
+export default ECommerceManagementAppConfig;

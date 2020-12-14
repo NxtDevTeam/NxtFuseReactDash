@@ -2,10 +2,12 @@ import {
 	createSlice,
 	createAsyncThunk,
 	createEntityAdapter,
+	createSelector,
 } from '@reduxjs/toolkit';
+import _ from '@lodash';
 
 import auth0Service from 'app/services/auth0Service';
-import NxtBackendApi from 'app/nxt-api';
+import NxtBackendApi, { buildCategoryImageUrl } from 'app/nxt-api';
 
 export const getProductCategory = createAsyncThunk(
 	'eCommerceApp/productCategories/fetchOne',
@@ -50,14 +52,35 @@ const categoryAdapter = createEntityAdapter();
 
 const selectCategoriesSlice = (state) => state.eCommerceApp.categories;
 
-export const {
-	selectAll: selectCategories,
-	selectById: selectCategory,
-	selectEntities: selectCategoriesMap,
-} = categoryAdapter.getSelectors(selectCategoriesSlice);
-
 export const selectCategoriesLoading =
 	(state) => selectCategoriesSlice(state).loading;
+
+const populateCategory = (category) => category && {
+	...category,
+	featured_image_url: category.featured_image
+		&& buildCategoryImageUrl(category.id, category.featured_image),
+	image_urls: category.images.map((image) =>
+		buildCategoryImageUrl(category.id, image)),
+};
+
+const {
+	selectAll,
+	selectById,
+	selectEntities,
+} = categoryAdapter.getSelectors(selectCategoriesSlice);
+
+export const selectCategories = createSelector(
+	selectAll,
+	(categories) => categories.map(populateCategory)
+);
+
+export const selectCategoriesMap = createSelector(
+	selectEntities,
+	(categoriesMap) => _.mapValues(categoriesMap, populateCategory)
+);
+
+export const selectCategoryById = (state, productId) =>
+	populateCategory(selectById(state, productId));
 
 const categorySlice = createSlice({
 	name: 'categories',
