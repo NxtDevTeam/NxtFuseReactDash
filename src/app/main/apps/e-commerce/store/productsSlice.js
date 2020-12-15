@@ -100,6 +100,8 @@ export const selectProductUpdating = (state) => selectSlice(state).updating;
 
 const populateProduct = (product, categoriesMap) => (product && {
 	...product,
+	on_sale: product.sale_price != null,
+	actual_price: product.sale_price != null ? product.sale_price : product.price,
 	categories: product.categories.map((catId) =>
 		categoriesMap[catId] ?? { id: catId }),
 	featured_image_url: product.featured_image

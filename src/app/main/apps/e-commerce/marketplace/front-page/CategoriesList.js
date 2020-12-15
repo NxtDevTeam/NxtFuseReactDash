@@ -1,7 +1,7 @@
 import React from 'react';
-import HorizontalList from './HorizontalList';
 import FuseLoading from '@fuse/core/FuseLoading';
-import CategoryCard from './CategoryCard';
+import HorizontalList from '../common/HorizontalList';
+import CategoryCard from '../common/CategoryCard';
 
 function CategoriesList({ className, title, categories }) {
 	return (
@@ -22,7 +22,7 @@ function CategoriesList({ className, title, categories }) {
 						name={name}
 						picture={featured_image_url}
 						description={description}
-						categoryUrl={`/apps/marketplace/categories/${id}`}
+						categoryUrl={`/apps/marketplace/category/${id}`}
 					/>
 					)
 				)

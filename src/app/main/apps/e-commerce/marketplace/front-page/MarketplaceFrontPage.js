@@ -1,4 +1,4 @@
-import React, { useEffect,useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { makeStyles } from '@material-ui/core';
 import FusePageSimple from '@fuse/core/FusePageSimple';
 import clsx from 'clsx';
@@ -12,6 +12,7 @@ import {
 	selectCategories,
 } from '../../store/productCategoriesSlice';
 import MarketplaceFrontPageContent from './MarketplaceFrontPageContent';
+import history from '@history';
 
 const bannerImages = [
 	{
@@ -65,6 +66,13 @@ function MarketplaceFrontPage() {
 		return allOnSale.slice(allOnSale.length - PRODUCT_GROUP_SIZE);
 	}, [allProducts]);
 
+	const [searchText, setSearchText] = useState('');
+
+	function handleSubmitSearch() {
+		const query = new URLSearchParams({ searchText });
+		history.push(`/apps/marketplace/search?${query.toString()}`);
+	}
+
 	return (
 		<FusePageSimple
 			classes={{
@@ -76,6 +84,9 @@ function MarketplaceFrontPage() {
 					categories={categories}
 					newProducts={newProducts}
 					saleProducts={saleProducts}
+					searchText={searchText}
+					setSearchText={setSearchText}
+					onSubmitSearch={handleSubmitSearch}
 				/>
 			}
 		/>

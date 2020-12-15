@@ -1,7 +1,7 @@
 import React from 'react';
-import HorizontalList from './HorizontalList';
-import ProductCard from './ProductCard';
 import FuseLoading from '@fuse/core/FuseLoading';
+import HorizontalList from '../common/HorizontalList';
+import ProductCard from '../common/ProductCard';
 
 function FeaturedProductList({ className, title, products }) {
 	return (
