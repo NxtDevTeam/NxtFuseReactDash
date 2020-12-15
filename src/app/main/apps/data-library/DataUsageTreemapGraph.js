@@ -4,6 +4,16 @@ import { useMediaQuery, useTheme } from '@material-ui/core';
 import ReactApexChart from 'react-apexcharts';
 import { byteSizeToString } from './dataSourceUtils';
 
+function legendLabelFormatter(seriesName, opts) {
+	const totals = opts.w.globals.seriesTotals;
+	const grandTotal = totals.reduce((sum, elem) => sum + elem);
+	const seriesTotal = totals[opts.seriesIndex];
+
+	const percent = Math.round(seriesTotal / grandTotal * 100);
+
+	return `${seriesName} (${percent}%)`;
+}
+
 function DataUsageTreemapGraph({ className, data }) {
 	const theme = useTheme();
 
@@ -49,6 +59,7 @@ function DataUsageTreemapGraph({ className, data }) {
 			labels: {
 				colors: theme.palette.text,
 			},
+			formatter: legendLabelFormatter,
 		},
 		// TODO The chart throws an error if the series is empty
 		// See https://github.com/apexcharts/apexcharts.js/issues/2090
