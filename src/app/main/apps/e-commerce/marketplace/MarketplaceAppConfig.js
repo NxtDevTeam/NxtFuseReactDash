@@ -11,6 +11,11 @@ const MarketplaceAppConfig = {
 				React.lazy(() => import('./product-details/ProductDetailsPage')),
 		},
 		{
+			path: '/apps/marketplace/category/:categoryId',
+			component:
+				React.lazy(() => import('./category-products/CategoryProductsPage')),
+		},
+		{
 			path: '/apps/marketplace/search',
 			component:
 				React.lazy(() => import('./marketplace-search/MarketplaceSearchPage')),
