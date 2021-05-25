@@ -5,7 +5,7 @@ import React from 'react';
 const useStyles = makeStyles(theme => ({
 	root: {
 		'& .logo-icon': {
-			height: 48,
+			height: 32,
 			transition: theme.transitions.create(['width', 'height'], {
 				duration: theme.transitions.duration.shortest,
 				easing: theme.transitions.easing.easeInOut
@@ -20,14 +20,32 @@ const useStyles = makeStyles(theme => ({
 	},
 }));
 
-function Logo() {
+export function Logo({ className }) {
 	const classes = useStyles();
 
 	return (
-		<div className={clsx(classes.root, 'flex items-center')}>
-			<img className="logo-icon" src="assets/images/logos/nxtsuite.png" alt="logo" />
+		<div className={clsx(classes.root, 'flex items-center', className)}>
+			<img className="logo-icon" src="assets/images/logos/skycomm-logo.svg" alt="logo" />
 		</div>
 	);
 }
 
-export default Logo;
+export function Tagline({ className }) {
+	const classes = useStyles();
+
+	return (
+		<div className={clsx(classes.root, 'flex items-center', className)}>
+			<img className="logo-icon" src="assets/images/logos/skycomm-tagline.svg" alt="tagline" />
+		</div>
+	);
+}
+
+export function IconLogo({ className }) {
+	const classes = useStyles();
+
+	return (
+		<div className={clsx(classes.root, 'flex items-center', className)}>
+			<img className="logo-icon" src="assets/images/logos/skycomm-icon.svg" alt="icon" />
+		</div>
+	);
+}

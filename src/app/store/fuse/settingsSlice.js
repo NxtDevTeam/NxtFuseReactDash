@@ -72,7 +72,7 @@ export const selectContrastMainTheme = bgColor => {
 	function isDark(color) {
 		return getContrastRatio(color, '#ffffff') >= 3;
 	}
-	return isDark(bgColor) ? selectMainThemeDark : selectMainThemeLight;
+	return isDark(bgColor) ? selectMainThemeLight : selectMainThemeDark;
 };
 
 export const selectMainTheme = createSelector([getThemes, getDirection, getMainThemeId], (themes, direction, id) =>

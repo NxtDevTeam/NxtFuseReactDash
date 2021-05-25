@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import firebase from 'firebase';
 import history from '@history';
 import _ from '@lodash';
-import { setInitialSettings, setDefaultSettings } from 'app/store/fuse/settingsSlice';
+import { setInitialSettings } from 'app/store/fuse/settingsSlice';
 import { showMessage } from 'app/store/fuse/messageSlice';
 import { fetchOwnOrganization } from 'app/store/organization/organizationsSlice';
 import auth0Service from 'app/services/auth0Service';
@@ -85,7 +85,7 @@ export const setUserData = user => async (dispatch, getState) => {
 		redirectUrl: user.redirectUrl
 	};
 
-	dispatch(setDefaultSettings(user.data.settings));
+	// dispatch(setDefaultSettings(user.data.settings));
 
 	dispatch(setUser(user));
 

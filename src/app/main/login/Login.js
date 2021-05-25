@@ -4,6 +4,7 @@ import CardContent from '@material-ui/core/CardContent';
 import { makeStyles } from '@material-ui/core/styles';
 import { darken } from '@material-ui/core/styles/colorManipulator';
 import Typography from '@material-ui/core/Typography';
+import { Logo } from 'app/fuse-layouts/shared-components/Logo';
 import clsx from 'clsx';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -49,9 +50,7 @@ function Login() {
 					>
 						<CardContent className="flex flex-col items-center justify-center w-full py-96 max-w-320">
 							<FuseAnimate delay={300}>
-								<div className="flex items-center mb-32">
-									<img className="logo-icon" src="assets/images/logos/nxtsuite.png" alt="logo" />
-								</div>
+								<Logo className="mb-32" />
 							</FuseAnimate>
 
 							<Auth0LoginTab />

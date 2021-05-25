@@ -61,6 +61,11 @@ export const selectNavigation = createSelector(
 	}
 );
 
+export const selectFlatNavigation = createSelector(
+	selectNavigation,
+	(navigation) => FuseUtils.getFlatNavigation(navigation)
+);
+
 const navigationSlice = createSlice({
 	name: 'navigation',
 	initialState,

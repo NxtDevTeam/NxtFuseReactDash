@@ -1,17 +1,21 @@
 const	settingsConfig = {
 	layout:	{
 		style: 'main',
-		config:	{}
+		config:	{
+			navbar: {
+				display: false,
+			},
+		},
 	},
 	customScrollbars:	true,
 	animations:	true,
 	direction: 'ltr',	// rtl,	ltr
 	theme: {
-		main:	'dark',
-		navbar:	'dark',
-		toolbar: 'dark',
-		footer:	'dark'
-	}
+		main:	'light',
+		navbar:	'inverse',
+		toolbar: 'white',
+		footer:	'white'
+	},
 };
 
 export default settingsConfig;

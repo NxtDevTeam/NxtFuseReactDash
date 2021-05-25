@@ -6,12 +6,12 @@ const themesConfig = {
 			type: 'dark',
 			primary: {
 				light: '#C2C2C3',
-				main: '#323338',
+				main: '#4f4f4f',
 				dark: '#131417',
 			},
 			secondary: {
-				main: '#7500d9',
-				contrastText: '#FFFFFF',
+				main: '#ff6231',
+				contrastText: '#ffffff',
 			},
 			background: {
 				paper: '#262526',
@@ -27,21 +27,40 @@ const themesConfig = {
 		palette: {
 			type: 'light',
 			primary: {
-				main: '#3344cc',
+				main: '#ca2129',
+				dark: '#9c0007',
 			},
 			secondary: {
-				main: '#00ccff',
-				contrastText: '#1E1F23',
+				main: '#ff6231',
+				contrastText: '#ffffff',
 			},
 			background: {
-				paper: '#FAF6F3',
-				default: '#FFFFFF',
+				paper: '#f2f8f1',
+				default: '#ffffff',
 			},
 			error: red,
 		},
 		status: {
 			danger: 'orange',
 		},
+	},
+	inverse: {
+		palette: {
+			type: 'dark',
+			text: '#ffffff',
+			background: {
+				paper: '#ca2129',
+				default: '#ca2129',
+			},
+		}
+	},
+	white: {
+		palette: {
+			type: 'light',
+			background: {
+				paper: '#ffffff',
+			},
+		}
 	},
 };
 
