@@ -18,7 +18,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { DateTimePicker } from '@material-ui/pickers';
 import moment from 'moment';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { buildCalendarId } from 'app/nxt-api/CalendarApi';
@@ -38,24 +38,52 @@ import {
 	closeNewEventDialog,
 	closeEditEventDialog,
 } from './store/eventsSlice';
+import { selectEventTypeFilter } from './store/filterSlice';
 
-const defaultFormState = {
-	calendar_id: '',
-	title: '',
-	all_day: false,
-	start: moment(new Date(), 'MM/DD/YYYY'),
-	end: moment(new Date(), 'MM/DD/YYYY'),
-	description: '',
-};
+function getInitialForm(eventTypeFilter, userId, orgId, teamId) {
+	let calendarId;
+	switch (eventTypeFilter) {
+		case 'user':
+			calendarId = buildCalendarId('user', userId);
+			break;
+		case 'organization':
+			calendarId = orgId ? buildCalendarId('organization', orgId) : '';
+			break;
+		case 'team':
+			calendarId = teamId ? buildCalendarId('team', teamId) : '';
+			break;
+		default:
+			calendarId = '';
+			break;
+	}
+
+	return {
+		calendar_id: calendarId,
+		title: '',
+		all_day: false,
+		start: moment(new Date(), 'MM/DD/YYYY'),
+		end: moment(new Date(), 'MM/DD/YYYY'),
+		description: '',
+	};
+}
 
 function EventDialog(props) {
 	const dispatch = useDispatch();
 	const eventDialog =
 		useSelector(({ calendarApp }) => calendarApp.events.eventDialog);
-	const { form, handleChange, setForm, setInForm } = useForm(defaultFormState);
 
 	const userData = useSelector(selectUserData);
 	const userId = userData.id;
+	const orgId = userData.organizationId;
+	const teamId = userData.teamId;
+
+	// Use this to set the initial calendar ID
+	const eventTypeFilter = useSelector(selectEventTypeFilter);
+	const initialFormData = useMemo(() => getInitialForm(
+		eventTypeFilter, userId, orgId, teamId,
+	), [eventTypeFilter, userId, orgId, teamId]);
+
+	const { form, handleChange, setForm, setInForm } = useForm(initialFormData);
 
 	const userRole = useSelector(selectUserRole);
 	const isAdmin = FuseUtils.hasPermission(authRoles.orgAdmin, userRole);
@@ -65,7 +93,6 @@ function EventDialog(props) {
 		|| form.calendar_id === buildCalendarId('user', userId);
 
 	// Fetch list of teams for making the calendar list
-	const orgId = userData.organizationId;
 	useEffect(() => {
 		if (orgId) {
 			dispatch(fetchTeamList(orgId));
@@ -88,11 +115,11 @@ function EventDialog(props) {
 		 */
 		if (eventDialog.type === 'new') {
 			setForm({
-				...defaultFormState,
+				...initialFormData,
 				...eventDialog.data,
 			});
 		}
-	}, [eventDialog.data, eventDialog.type, setForm]);
+	}, [eventDialog.data, eventDialog.type, setForm, initialFormData]);
 
 	useEffect(() => {
 		/**
@@ -276,18 +303,18 @@ function EventDialog(props) {
 						</Button>
 					</DialogActions>
 				) : (
-						canChangeEventCalendar
-							?
-							<DialogActions className="justify-between px-8 sm:px-16">
-								<Button variant="contained" color="primary" type="submit" disabled={!canBeSubmitted()}>
-									Save
+					canChangeEventCalendar
+						?
+						<DialogActions className="justify-between px-8 sm:px-16">
+							<Button variant="contained" color="primary" type="submit" disabled={!canBeSubmitted()}>
+								Save
 								</Button>
-								<IconButton onClick={handleRemove}>
-									<Icon>delete</Icon>
-								</IconButton>
-							</DialogActions>
-							: null
-					)}
+							<IconButton onClick={handleRemove}>
+								<Icon>delete</Icon>
+							</IconButton>
+						</DialogActions>
+						: null
+				)}
 			</form>
 		</Dialog>
 	);

@@ -3,10 +3,11 @@ import Fab from '@material-ui/core/Fab';
 import Icon from '@material-ui/core/Icon';
 import { makeStyles } from '@material-ui/core/styles';
 import { selectUserData } from 'app/auth/store/userSlice';
+import { getCalendarType } from 'app/nxt-api/CalendarApi';
 import withReducer from 'app/store/withReducer';
 import clsx from 'clsx';
 import moment from 'moment';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
@@ -24,6 +25,7 @@ import {
 	updateEvent,
 	getEvents
 } from './store/eventsSlice';
+import { selectEventTypeFilter } from './store/filterSlice';
 
 const localizer = momentLocalizer(moment);
 
@@ -183,15 +185,30 @@ const useStyles = makeStyles(theme => ({
 	}
 }));
 
+function getEventFilter(calendarFilter) {
+	if (calendarFilter === 'all') {
+		return () => true;
+	} else {
+		return (event) => getCalendarType(event.calendar_id) === calendarFilter;
+	}
+}
+
 function CalendarApp(props) {
 	const dispatch = useDispatch();
-	const events = useSelector(selectEvents).map(event => ({
+	const user = useSelector(selectUserData);
+	const userId = user.id;
+
+	const allEvents = useSelector(selectEvents).map(event => ({
 		...event,
 		start: moment(event.start, dateFormat).toDate(),
 		end: moment(event.end, dateFormat).toDate()
 	}));
-	const user = useSelector(selectUserData);
-	const userId = user.id;
+
+	const eventTypeFilter = useSelector(selectEventTypeFilter);
+
+	const filteredEvents = useMemo(() => (
+		allEvents.filter(getEventFilter(eventTypeFilter))
+	), [eventTypeFilter, allEvents]);
 
 	const classes = useStyles(props);
 	const headerEl = useRef(null);
@@ -238,7 +255,7 @@ function CalendarApp(props) {
 				className="flex flex-1 container"
 				selectable
 				localizer={localizer}
-				events={events}
+				events={filteredEvents}
 				onEventDrop={moveEvent}
 				resizable
 				onEventResize={resizeEvent}
