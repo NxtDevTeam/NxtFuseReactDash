@@ -92,7 +92,11 @@ function OrganizationProfileApp(props) {
 				}}
 				header={<OrganizationHeader organization={organization.data} />}
 				content={(memberListData)
-					? <MemberList data={memberListData} filterTeamId={userTeam} />
+					? <MemberList
+						organizationId={organization.data.id}
+						data={memberListData}
+						filterTeamId={userTeam}
+					/>
 					: <FuseLoading />
 				}
 				innerScroll
