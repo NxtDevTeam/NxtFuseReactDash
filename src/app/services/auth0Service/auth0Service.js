@@ -85,10 +85,17 @@ class Auth0Service {
 	async getApiToken(options) {
 		const auth0 = await this.getClient();
 		// Try getting the token silently, then fallback to a popup if it fails
+		// (i.e. if the pop-up is blocked)
 		try {
 			return await auth0.getTokenSilently(options);
-		} catch {
-			return await auth0.getTokenWithPopup(options);
+		} catch (ex) {
+			// If it fails because the user has not logged in, then it don't show the
+			// pop-up
+			if (ex.error !== 'login_required') {
+				return await auth0.getTokenWithPopup(options);
+			} else {
+				throw ex;
+			}
 		}
 	}
 

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { showMessage } from 'app/store/fuse/messageSlice';
 import { setUserDataAuth0 } from 'app/auth/store/userSlice';
+import { useHistory } from 'react-router';
 
 function Callback(props) {
 	const dispatch = useDispatch();
@@ -20,17 +21,24 @@ function Callback(props) {
 	// dispatch() function changes while performing the authentication.
 	const [user, setUser] = useState(null);
 
+	const history = useHistory();
+
 	useEffect(() => {
 		(async () => {
-			// Only try if not already signed in
-			if (!await auth0Service.isAuthenticated()) {
-				await auth0Service.handleRedirectCallback();
-			}
+			try {
+				// Only try if not already signed in
+				if (!await auth0Service.isAuthenticated()) {
+					await auth0Service.handleRedirectCallback();
+				}
 
-			const userData = await auth0Service.getUserData();
-			setUser(userData);
+				const userData = await auth0Service.getUserData();
+				setUser(userData);
+			} catch (ex) {
+				dispatch(showMessage({ message: ex.message, variant: 'error' }));
+				history.replace('/');
+			}
 		})();
-	}, [setUser]);
+	}, [setUser, dispatch, history]);
 
 	// Keep the user data up to date in Redux
 	useEffect(() => {

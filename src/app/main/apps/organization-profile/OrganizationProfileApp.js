@@ -93,7 +93,8 @@ function OrganizationProfileApp(props) {
 				header={<OrganizationHeader organization={organization.data} />}
 				content={(memberListData)
 					? <MemberList
-						organizationId={organization.data.id}
+						orgId={organization.data.id}
+						orgName={organization.data.name}
 						data={memberListData}
 						filterTeamId={userTeam}
 					/>

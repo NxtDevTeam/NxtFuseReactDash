@@ -7,8 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import { Logo } from 'app/fuse-layouts/shared-components/Logo';
 import clsx from 'clsx';
 import React from 'react';
-import { Link } from 'react-router-dom';
-import Auth0LoginTab from './tabs/Auth0LoginTab';
+import Auth0LoginTab from './Auth0LoginTab';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -55,12 +54,6 @@ function Login() {
 
 							<Auth0LoginTab />
 						</CardContent>
-
-						<div className="flex flex-col items-center justify-center pb-32">
-							<Link className="font-medium mt-8" to="/">
-								Back to Dashboard
-							</Link>
-						</div>
 					</Card>
 
 					<div
@@ -70,14 +63,14 @@ function Login() {
 							<FuseAnimate animation="transition.slideUpIn" delay={400}>
 								<Typography variant="h3" color="inherit" className="font-800 leading-tight">
 									Welcome to <br />
-									NXTSuite
+									SkyComm
 								</Typography>
 							</FuseAnimate>
 
 							<FuseAnimate delay={500}>
 								<Typography variant="subtitle1" color="inherit" className="mt-32">
-									Powerful and professional admin template for Web Applications, CRM, CMS, Admin
-									Panels and more.
+									Powerful and professional communications and organizational
+									platform.
 								</Typography>
 							</FuseAnimate>
 						</div>

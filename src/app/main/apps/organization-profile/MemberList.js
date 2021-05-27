@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import ContactsTable from 'app/main/apps/contacts/ContactsTable.js';
+import InviteDialog from './InviteDialog';
 
 const MEMBER_LIST_COLUMNS = [
 	{
@@ -80,7 +81,7 @@ const filterTypes = {
 		}),
 };
 
-function MemberList({ organizationId, data, filterTeamId }) {
+function MemberList({ orgId, orgName, data, filterTeamId }) {
 	const [searchText, setSearchText] = useState('');
 
 	const [filterType, setFilterType] = useState('all');
@@ -94,6 +95,7 @@ function MemberList({ organizationId, data, filterTeamId }) {
 	const [inviteDialogOpen, openInviteDialog] = useState(false);
 
 	return (
+		<>
 			<FuseAnimate animation="transition.slideUpIn" delay={300}>
 				<div className="flex flex-col">
 					<div className="flex py-16">
@@ -156,6 +158,14 @@ function MemberList({ organizationId, data, filterTeamId }) {
 					/>
 				</div>
 			</FuseAnimate>
+
+			<InviteDialog
+				open={inviteDialogOpen}
+				onClose={() => openInviteDialog(false)}
+				orgId={orgId}
+				orgName={orgName}
+			/>
+		</>
 	);
 }
 
