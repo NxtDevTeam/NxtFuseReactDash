@@ -35,6 +35,7 @@
         "jss-rtl": "0.3.0",
         "jwt-decode": "2.2.0",
         "keycode": "2.2.0",
+        "libphonenumber-js": "^1.9.19",
         "lodash": "4.17.20",
         "marked": "0.8.2",
         "material-table": "1.68.0",

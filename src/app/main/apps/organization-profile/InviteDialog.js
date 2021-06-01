@@ -11,12 +11,27 @@ import { showMessage } from 'app/store/fuse/messageSlice';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
-function InviteDialog({ open, onClose, orgId, orgName }) {
+/**
+ * Builds an invitation link URI (excludes the origin)
+ */
+export function buildInvitePath(orgId, orgName = '') {
 	const queryParams = new URLSearchParams({
 		organization_id: orgId,
 		organization_name: orgName,
 	});
-	const inviteLink = `${window.location.origin}/register?${queryParams}`
+
+	return `/register?${queryParams}`;
+}
+
+/**
+ * Builds a full invitiation link URL for external use (includes the origin)
+ */
+export function buildInviteLink(orgId, orgName = '') {
+	return `${window.location.origin}${buildInvitePath(orgId, orgName)}`;
+}
+
+function InviteDialog({ open, onClose, orgId, orgName }) {
+	const inviteLink = buildInviteLink(orgId, orgName);
 
 	const dispatch = useDispatch();
 

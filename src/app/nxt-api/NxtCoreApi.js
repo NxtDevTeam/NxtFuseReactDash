@@ -80,6 +80,18 @@ export default class NxtCoreApi extends ApiWrapper {
 		});
 	}
 
+	/**
+	 * Like createOrganization(), but does not reuqire admin permissions and
+	 * can only create un-paid organizations.
+	 */
+	registerOrganization(data) {
+		return this.makeRequest({
+			method: 'post',
+			url: '/organization-registrations',
+			data,
+		});
+	}
+
 	getAllTeams(orgId) {
 		return this.makeRequest({ url: `/organizations/${orgId}/teams` });
 	}

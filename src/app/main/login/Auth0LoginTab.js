@@ -1,4 +1,4 @@
-import Button from '@material-ui/core/Button';
+import { Button, Typography } from '@material-ui/core';
 import auth0Service from 'app/services/auth0Service';
 import React from 'react';
 
@@ -8,9 +8,13 @@ async function login() {
 
 function Auth0LoginTab() {
 	return (
-		<div className="w-full">
+		<div className="flex flex-col items-center justify-center my-48 w-full">
+			<Typography>
+				Existing user?
+			</Typography>
+
 			<Button
-				className="w-full my-48"
+				className="w-full"
 				color="primary"
 				variant="contained"
 				onClick={login}

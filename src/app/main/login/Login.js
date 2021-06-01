@@ -1,4 +1,5 @@
 import FuseAnimate from '@fuse/core/FuseAnimate';
+import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import { makeStyles } from '@material-ui/core/styles';
@@ -6,8 +7,9 @@ import { darken } from '@material-ui/core/styles/colorManipulator';
 import Typography from '@material-ui/core/Typography';
 import { Logo } from 'app/fuse-layouts/shared-components/Logo';
 import clsx from 'clsx';
-import React from 'react';
+import React, { useState } from 'react';
 import Auth0LoginTab from './Auth0LoginTab';
+import RegisterOrgDialog from './RegisterOrgDialog';
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -29,6 +31,8 @@ const useStyles = makeStyles(theme => ({
 
 function Login() {
 	const classes = useStyles();
+
+	const [orgDialogOpen, openOrgDialog] = useState(false);
 
 	return (
 		<div
@@ -53,6 +57,19 @@ function Login() {
 							</FuseAnimate>
 
 							<Auth0LoginTab />
+
+							<div className="flex flex-col items-center justify-center pb-32">
+								<Typography>
+									Organization not using SkyComm?
+								</Typography>
+								<Button
+									variant="contained"
+									className="font-medium mt-8"
+									onClick={() => openOrgDialog(true)}
+								>
+									Register your organization
+								</Button>
+							</div>
 						</CardContent>
 					</Card>
 
@@ -77,6 +94,11 @@ function Login() {
 					</div>
 				</div>
 			</FuseAnimate>
+
+			<RegisterOrgDialog
+				open={orgDialogOpen}
+				onClose={() => openOrgDialog(false)}
+			/>
 		</div>
 	);
 }
