@@ -52,6 +52,7 @@ const getDirection = state => state.fuse.settings.current.direction;
 const getMainThemeId = state => state.fuse.settings.current.theme.main;
 const getNavbarThemeId = state => state.fuse.settings.current.theme.navbar;
 const getToolbarThemeId = state => state.fuse.settings.current.theme.toolbar;
+const getHeaderThemeId = state => state.fuse.settings.current.theme.header;
 const getFooterThemeId = state => state.fuse.settings.current.theme.footer;
 
 function generateMuiTheme(themes, id, direction) {
@@ -93,6 +94,10 @@ export const selectNavbarTheme = createSelector([getThemes, getDirection, getNav
 export const selectToolbarTheme = createSelector(
 	[getThemes, getDirection, getToolbarThemeId],
 	(themes, direction, id) => generateMuiTheme(themes, id, direction)
+);
+
+export const selectHeaderTheme = createSelector([getThemes, getDirection, getHeaderThemeId], (themes, direction, id) =>
+	generateMuiTheme(themes, id, direction)
 );
 
 export const selectFooterTheme = createSelector([getThemes, getDirection, getFooterThemeId], (themes, direction, id) =>

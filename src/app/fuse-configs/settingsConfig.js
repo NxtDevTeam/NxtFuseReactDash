@@ -14,6 +14,7 @@ const	settingsConfig = {
 		main:	'light',
 		navbar:	'inverse',
 		toolbar: 'white',
+		header: 'dark',
 		footer:	'white'
 	},
 };

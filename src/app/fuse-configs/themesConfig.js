@@ -8,13 +8,14 @@ const themesConfig = {
 				light: '#C2C2C3',
 				main: '#4f4f4f',
 				dark: '#131417',
+				contrastText: '#ffffff',
 			},
 			secondary: {
 				main: '#ff6231',
 				contrastText: '#ffffff',
 			},
 			background: {
-				paper: '#262526',
+				paper: '#333333',
 				default: '#1E1D1E',
 			},
 			error: red,
