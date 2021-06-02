@@ -1,20 +1,15 @@
 import FuseUtils from '@fuse/utils';
 import appsConfigs from 'app/main/apps/appsConfigs';
 import CallbackConfig from 'app/main/callback/CallbackConfig';
-import DocumentationConfig from 'app/main/documentation/DocumentationConfig';
 import LoginConfig from 'app/main/login/LoginConfig';
 import RegisterConfig from 'app/main/register/RegisterConfig';
 import LogoutConfig from 'app/main/logout/LogoutConfig';
-import pagesConfigs from 'app/main/pages/pagesConfigs';
-import UserInterfaceConfig from 'app/main/user-interface/UserInterfaceConfig';
 import React from 'react';
 import { Redirect } from 'react-router-dom';
+import Error404Page from 'app/main/pages/errors/404/Error404Page';
 
 const routeConfigs = [
 	...appsConfigs,
-	...pagesConfigs,
-	UserInterfaceConfig,
-	DocumentationConfig,
 	LogoutConfig,
 	LoginConfig,
 	RegisterConfig,
@@ -33,7 +28,7 @@ const routes = [
 		component: () => <Redirect to="/apps/organization" />
 	},
 	{
-		component: () => <Redirect to="/pages/errors/error-404" />
+		component: () => <Error404Page />
 	}
 ];
 
