@@ -7,6 +7,13 @@ const navigationConfig = [
 		url: '/apps/organization/own'
 	},
 	{
+		id: 'conference',
+		title: 'Video Conference',
+		type: 'item',
+		icon: 'video_call',
+		url: '/apps/video-conference',
+	},
+	{
 		id: 'calendar',
 		title: 'Calendar',
 		translate: 'CALENDAR',

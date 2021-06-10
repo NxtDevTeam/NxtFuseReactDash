@@ -1,6 +1,7 @@
 import ApiWrapper from './ApiWrapper';
 import CalendarApi from './CalendarApi';
 import MarketplaceApi from './MarketplaceApi';
+import JitsiTokenApi from './JitsiTokenApi';
 
 export default class NxtCoreApi extends ApiWrapper {
 	constructor(accessToken, baseUrl) {
@@ -14,6 +15,10 @@ export default class NxtCoreApi extends ApiWrapper {
 
 	get marketplace() {
 		return new MarketplaceApi(this);
+	}
+
+	get jitsi() {
+		return new JitsiTokenApi(this);
 	}
 
 	getAllUsers() {

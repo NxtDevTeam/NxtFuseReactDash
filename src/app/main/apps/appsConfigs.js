@@ -1,5 +1,7 @@
 import CalendarAppConfig from './calendar/CalendarAppConfig';
 import OrganizationProfileAppConfig from './organization-profile/OrganizationProfileAppConfig';
+import VideoConferenceAppConfig from './video-conference/VideoConferenceAppConfig';
+import VideoConferenceAdminAppConfig from './video-conference/VideoConferenceAdminAppConfig';
 
 const appsConfigs = [
 	OrganizationProfileAppConfig,
@@ -16,6 +18,8 @@ const appsConfigs = [
 	// ScrumboardAppConfig,
 	// AcademyAppConfig,
 	// NotesAppConfig,
+	VideoConferenceAppConfig,
+	VideoConferenceAdminAppConfig,
 ];
 
 export default appsConfigs;
