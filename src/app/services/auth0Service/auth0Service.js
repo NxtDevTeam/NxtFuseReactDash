@@ -20,6 +20,8 @@ class Auth0Service {
 			client_id: AUTH_CONFIG.clientId,
 			redirect_uri: AUTH_CONFIG.callbackUrl,
 			audience: AUTH_CONFIG.nxtApiAudience,
+			cacheLocation: 'localstorage',
+			useRefreshTokens: true,
 		});
 	}
 
@@ -50,7 +52,8 @@ class Auth0Service {
 
 	async isAuthenticated() {
 		const auth0 = await this.getClient();
-		return await auth0.isAuthenticated();
+		const isauth = await auth0.isAuthenticated();
+		return isauth;
 	}
 
 	async getUserData() {
